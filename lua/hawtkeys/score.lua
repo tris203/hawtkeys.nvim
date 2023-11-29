@@ -96,7 +96,7 @@ local function process_string(str)
         local find_mapping = function(maps, lhs)
             for _, value in ipairs(maps) do
                 if value.lhs == lhs then
-                    return true
+                    return value.rhs
                 end
             end
             return false
@@ -104,7 +104,9 @@ local function process_string(str)
 
         for i = #sortedScores, 1, -1 do
             if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
-                table.remove(sortedScores, i)
+                -- table.remove(sortedScores, i)
+                local mapping = find_mapping(already_used_keys, config.leader .. sortedScores[i].combo)
+                sortedScores[i].already_mapped = mapping
             end
         end
     end
@@ -149,6 +151,17 @@ local function score(str)
     print()
 end
 
+local function scoreTable(str)
+    local results = top5(process_string(str))
+    local resultTable = {}
+    for _, data in ipairs(results)
+    do
+        table.insert(resultTable, "Key: " .. highlight_desc(str, data.combo) .. "(<leader>" .. data.combo .. "), Key score " .. data.score .. ", Already mapped: " .. tostring(data.already_mapped))
+    end
+    return resultTable
+    end
+
 return {
     Score = score,
+    ScoreTable = scoreTable
 }
