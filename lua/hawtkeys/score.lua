@@ -87,7 +87,27 @@ local function process_string(str)
     end
     table.sort(sortedScores, Score_sort)
 
-    return sortedScores
+    local already_used_keys = vim.api.nvim_get_keymap("n")
+--print("Already used keys: " .. vim.inspect(already_used_keys))
+--print("Sorted scores: " .. vim.inspect(sortedScores))
+
+local find_mapping = function(maps, lhs)
+        for _, value in ipairs(maps) do
+            if value.lhs == lhs then
+                return true
+            end
+        end
+        return false
+    end
+
+    for i = #sortedScores, 1, -1 do
+        if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
+            table.remove(sortedScores, i)
+        end
+    end
+
+
+return sortedScores
 end
 
 function Score_sort(a, b)
@@ -101,7 +121,6 @@ local function top5(scores_table)
     end
     return top_list
 end
-
 
 local function highlight_desc(str, combo)
     -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
