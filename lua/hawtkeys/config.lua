@@ -1,5 +1,5 @@
 M = {}
-
+M.excludeAlreadyMapped = true 
 M.leader = " "
 M.homerow = 2
 M.powerFingers = { 2, 3, 6, 7 }

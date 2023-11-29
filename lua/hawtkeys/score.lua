@@ -24,7 +24,7 @@ local function key_score(key1, key2, str, layout)
             1 or 0
         local mnemonicBonus = Mnemonic_score(key1, key2, str)
         local score = (doubleCharBonus + homerowBonus + powerFinger1Bonus + powerFinger2Bonus + mnemonicBonus) -
-        sameFingerPenalty
+            sameFingerPenalty
 
         return score
     else
@@ -87,27 +87,30 @@ local function process_string(str)
     end
     table.sort(sortedScores, Score_sort)
 
-    local already_used_keys = vim.api.nvim_get_keymap("n")
---print("Already used keys: " .. vim.inspect(already_used_keys))
---print("Sorted scores: " .. vim.inspect(sortedScores))
 
-local find_mapping = function(maps, lhs)
-        for _, value in ipairs(maps) do
-            if value.lhs == lhs then
-                return true
+    if config.excludeAlreadyMapped then
+        local already_used_keys = vim.api.nvim_get_keymap("n")
+        --print("Already used keys: " .. vim.inspect(already_used_keys))
+        --print("Sorted scores: " .. vim.inspect(sortedScores))
+
+        local find_mapping = function(maps, lhs)
+            for _, value in ipairs(maps) do
+                if value.lhs == lhs then
+                    return true
+                end
+            end
+            return false
+        end
+
+        for i = #sortedScores, 1, -1 do
+            if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
+                table.remove(sortedScores, i)
             end
         end
-        return false
-    end
-
-    for i = #sortedScores, 1, -1 do
-        if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
-            table.remove(sortedScores, i)
-        end
     end
 
 
-return sortedScores
+    return sortedScores
 end
 
 function Score_sort(a, b)
@@ -125,14 +128,14 @@ end
 local function highlight_desc(str, combo)
     -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
     local newStr = str:lower()
-    local marked = {}  -- Keep track of characters already marked
+    local marked = {} -- Keep track of characters already marked
     for i = 1, #combo do
         local char = combo:sub(i, i)
-        local pos = marked[char] or 1  -- Start searching from the last marked position or from the beginning
-        pos = newStr:find(char, pos, true)  -- Find the position of the character
+        local pos = marked[char] or 1      -- Start searching from the last marked position or from the beginning
+        pos = newStr:find(char, pos, true) -- Find the position of the character
         if pos then
             newStr = newStr:sub(1, pos - 1) .. "[" .. char .. "]" .. newStr:sub(pos + 1)
-            marked[char] = pos+2  -- Mark this character's position
+            marked[char] = pos + 2 -- Mark this character's position
         end
     end
     return newStr
@@ -141,12 +144,11 @@ local function score(str)
     print("String: " .. str)
     for _, data in ipairs(top5(process_string(str)))
     do
-        print("Key: " .. highlight_desc(str, data.combo) .. "(<leader>" ..data.combo .."), Key score " .. data.score)
+        print("Key: " .. highlight_desc(str, data.combo) .. "(<leader>" .. data.combo .. "), Key score " .. data.score)
     end
     print()
 end
 
 return {
-Score=score,
+    Score = score,
 }
-
