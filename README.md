@@ -17,7 +17,7 @@ This will allow you to search keybinds as below:
 
 <div align="center">
     <img src="images/demo.gif" alt="demo">
-
+</div>
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
