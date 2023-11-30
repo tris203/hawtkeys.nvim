@@ -13,7 +13,6 @@ local function key_score(key1, key2, str, layout)
         local key2Data = keyboard[key2]
 
 
-        -- Double press = + 3, homeRow = + 1 (if both keys are on the home row), powerFinger = + 1 (if one of the keys is pressed with a power finger)
         -- The higher the score the better
         local doubleCharBonus = (key1 == key2) and 3 or 0
         local sameFingerPenalty = (key1Data.finger == key2Data.finger) and 1 or 0
@@ -69,7 +68,6 @@ local function generate_combos(str)
     return pairs
 end
 
--- Function to loop through all two-character combinations and calculate key distance
 local function process_string(str)
     local combinations = generate_combos(str)
     local scores = {}
@@ -90,8 +88,6 @@ local function process_string(str)
 
     if config.excludeAlreadyMapped then
         local already_used_keys = vim.api.nvim_get_keymap("n")
-        --print("Already used keys: " .. vim.inspect(already_used_keys))
-        --print("Sorted scores: " .. vim.inspect(sortedScores))
 
         local find_mapping = function(maps, lhs)
             for _, value in ipairs(maps) do
@@ -104,7 +100,6 @@ local function process_string(str)
 
         for i = #sortedScores, 1, -1 do
             if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
-                -- table.remove(sortedScores, i)
                 local mapping = find_mapping(already_used_keys, config.leader .. sortedScores[i].combo)
                 sortedScores[i].already_mapped = mapping
             end
@@ -142,26 +137,21 @@ local function highlight_desc(str, combo)
     end
     return newStr
 end
-local function score(str)
-    print("String: " .. str)
-    for _, data in ipairs(top5(process_string(str)))
-    do
-        print("Key: " .. highlight_desc(str, data.combo) .. "(<leader>" .. data.combo .. "), Key score " .. data.score)
-    end
-    print()
-end
 
 local function scoreTable(str)
     local results = top5(process_string(str))
     local resultTable = {}
     for _, data in ipairs(results)
     do
-        table.insert(resultTable, "Key: " .. highlight_desc(str, data.combo) .. "(<leader>" .. data.combo .. "), Key score " .. data.score .. ", Already mapped: " .. tostring(data.already_mapped))
+        table.insert(resultTable,
+            "Key: " ..
+            highlight_desc(str, data.combo) ..
+            "(<leader>" ..
+            data.combo .. "), Key score " .. data.score .. ", Already mapped: " .. tostring(data.already_mapped))
     end
     return resultTable
-    end
+end
 
 return {
-    Score = score,
     ScoreTable = scoreTable
 }

@@ -6,8 +6,9 @@
 # User Experience
 * Highlighting on output - Show already mapped keys in red
 * Output in format to set keymap
-* Make list update dynamic
-    * Tried to do this but issues with E656 setting field, need to read more
+[X] Make list update dynamic
+    [X] Tried to do this but issues with E656 setting field, need to read more
+    * Answer was nvim.schedule
 * Support different modes (Currenlty just n)
 * What does the UI look like for this (n/command, eg n/Find Files?)
 
