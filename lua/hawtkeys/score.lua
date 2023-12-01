@@ -86,23 +86,21 @@ local function process_string(str)
     table.sort(sortedScores, Score_sort)
 
 
-    if config.excludeAlreadyMapped then
-        local already_used_keys = vim.api.nvim_get_keymap("n")
+    local already_used_keys = vim.api.nvim_get_keymap("n")
 
-        local find_mapping = function(maps, lhs)
-            for _, value in ipairs(maps) do
-                if value.lhs == lhs then
-                    return value.rhs
-                end
+    local find_mapping = function(maps, lhs)
+        for _, value in ipairs(maps) do
+            if value.lhs == lhs then
+                return value.rhs
             end
-            return false
         end
+        return false
+    end
 
-        for i = #sortedScores, 1, -1 do
-            if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
-                local mapping = find_mapping(already_used_keys, config.leader .. sortedScores[i].combo)
-                sortedScores[i].already_mapped = mapping
-            end
+    for i = #sortedScores, 1, -1 do
+        if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
+            local mapping = find_mapping(already_used_keys, config.leader .. sortedScores[i].combo)
+            sortedScores[i].already_mapped = mapping
         end
     end
 
