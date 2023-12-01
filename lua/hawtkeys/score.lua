@@ -1,4 +1,4 @@
-local config = require("hawtkeys.config")
+local config = require("hawtkeys")
 local keyboardLayouts = require("hawtkeys.keyboards")
 
 local function key_score(key1, key2, str, layout)
@@ -74,7 +74,7 @@ local function process_string(str)
 
     for _, combo in ipairs(combinations) do
         local a, b = combo:sub(1, 1), combo:sub(2, 2)
-        local score = key_score(a, b, str, "qwerty")
+        local score = key_score(a, b, str, config.keyboardLayout)
         scores[combo] = score
     end
 
