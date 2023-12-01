@@ -6,6 +6,28 @@ It takes into consideration keyboard layout, easy to press combinations and memo
 
 ## Getting Started
 Installation instructions to follow, but as usual with package managers
+```lua
+return {
+dir = "tris203/hawtkeys.nvim",
+config = true,
+}
+```
+## Config
+The default config is below, but can be changed by passing a table in config with the options
+
+* leader is your current leader key (This will be automatic in future
+* homerow is the numerical representation of the home row in your keyboard layout
+* powerFingers contains which fingers are prefered for keystrokes, counted from a 0 index reading left to right. 0, 1, 2 ..9.
+* Keyboard layout is the layout, currently on QWERTY is defined. More to follow
+
+```lua
+{
+    leader = " "
+    homerow = 2
+    powerFingers = { 2, 3, 6, 7 }
+    keyboardLayout = "qwerty"
+}
+```
 
 ## Usage
 
