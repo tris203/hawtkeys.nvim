@@ -18,14 +18,16 @@ The default config is below, but can be changed by passing a table in config wit
 * leader is your current leader key (This will be automatic in future
 * homerow is the numerical representation of the home row in your keyboard layout
 * powerFingers contains which fingers are prefered for keystrokes, counted from a 0 index reading left to right. 0, 1, 2 ..9.
-* Keyboard layout is the layout, currently on QWERTY is defined. More to follow
+* keyboardLayout is the layout, currently only QWERTY is defined. More to follow
+* keymap, duh
 
 ```lua
 {
     leader = " "
     homerow = 2
     powerFingers = { 2, 3, 6, 7 }
-    keyboardLayout = "qwerty"
+    keyboardLayout = "qwerty",
+    keymap = "<leader>hwt"
 }
 ```
 
