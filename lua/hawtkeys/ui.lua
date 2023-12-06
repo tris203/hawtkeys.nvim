@@ -1,5 +1,6 @@
 M = {}
 Hawtkeys = require('hawtkeys.score')
+ShowAll = require('hawtkeys.show_all')
 M.search = function(text)
   vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, Hawtkeys.ScoreTable(text))
 end
@@ -53,6 +54,26 @@ M.show = function()
   --
   vim.api.nvim_set_current_buf(searchBuf)
   vim.api.nvim_command("startinsert")
+end
+
+M.showAll = function()
+  local ui = vim.api.nvim_list_uis()[1]
+  local width = 100
+  local height = 30
+  ResultBuf = vim.api.nvim_create_buf(false, true)
+  ResultWin = vim.api.nvim_open_win(ResultBuf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = (ui.width / 2) - (width / 2),
+    row = (ui.height / 2) - (height / 2),
+    anchor = "NW",
+    footer = "Current Keybindings",
+    footer_pos = "center",
+    border = "single",
+    noautocmd = true,
+  })
+  vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, ShowAll.show_all())
 end
 
 M.hide = function()

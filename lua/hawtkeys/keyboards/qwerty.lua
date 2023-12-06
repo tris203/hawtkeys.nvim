@@ -1,4 +1,4 @@
-
+--TODO: Mapp all other keys, including modifiers and symbols
     local layout = {
         q = { finger = 1, row = 1, col = 1 },
         w = { finger = 2, row = 1, col = 2 },

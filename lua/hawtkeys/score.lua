@@ -1,5 +1,7 @@
 local config = require("hawtkeys")
 local keyboardLayouts = require("hawtkeys.keyboards")
+local tsSearch = require("hawtkeys.ts")
+local utils = require("hawtkeys.utils")
 
 local function key_score(key1, key2, str, layout)
     local keyboard = keyboardLayouts[layout]
@@ -83,41 +85,29 @@ local function process_string(str)
     for combo, score in pairs(scores) do
         table.insert(sortedScores, { combo = combo, score = score })
     end
-    table.sort(sortedScores, Score_sort)
+    table.sort(sortedScores, utils.Score_sort)
 
 
-    local already_used_keys = vim.api.nvim_get_keymap("n")
+    local already_used_keys = tsSearch.get_all_keymaps()
 
     local find_mapping = function(maps, lhs)
         for _, value in ipairs(maps) do
             if value.lhs == lhs then
-                return value.rhs
+                return { rhs = value.rhs, from_file = value.from_file }
             end
         end
         return false
     end
 
     for i = #sortedScores, 1, -1 do
-        if find_mapping(already_used_keys, config.leader .. sortedScores[i].combo) then
-            local mapping = find_mapping(already_used_keys, config.leader .. sortedScores[i].combo)
+        if find_mapping(already_used_keys, '<leader>' .. sortedScores[i].combo) then
+            local mapping = find_mapping(already_used_keys, '<leader>' .. sortedScores[i].combo)
             sortedScores[i].already_mapped = mapping
         end
     end
 
 
     return sortedScores
-end
-
-function Score_sort(a, b)
-    return a.score > b.score
-end
-
-local function top5(scores_table)
-    local top_list = {}
-    for i = 1, 5 do
-        table.insert(top_list, scores_table[i])
-    end
-    return top_list
 end
 
 local function highlight_desc(str, combo)
@@ -137,19 +127,28 @@ local function highlight_desc(str, combo)
 end
 
 local function scoreTable(str)
-    local results = top5(process_string(str))
+    -- local results = utils.top5(process_string(str))
+    local results = process_string(str)
     local resultTable = {}
     for _, data in ipairs(results)
     do
         table.insert(resultTable,
             "Key: " ..
             highlight_desc(str, data.combo) ..
-            "(<leader>" ..
-            data.combo .. "), Key score " .. data.score .. ", Already mapped: " .. tostring(data.already_mapped))
+            "<leader>" ..
+            data.combo ..
+            " - Hawt Score: " ..
+            data.score)
+        if data.already_mapped ~= nil and data.already_mapped.rhs ~= nil and data.already_mapped.from_file ~= nil then
+            table.insert(resultTable,
+                "Already mapped: " .. tostring(data.already_mapped.rhs))
+            table.insert(resultTable,
+                "In File" .. (data.already_mapped.from_file))
+        end
     end
     return resultTable
 end
 
 return {
-    ScoreTable = scoreTable
+    ScoreTable = scoreTable,
 }
