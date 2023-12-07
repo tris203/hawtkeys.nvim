@@ -3,6 +3,11 @@ local keyboardLayouts = require("hawtkeys.keyboards")
 local tsSearch = require("hawtkeys.ts")
 local utils = require("hawtkeys.utils")
 
+---@param key1 string
+---@param key2 string
+---@param str string
+---@param layout string
+---@return integer
 local function key_score(key1, key2, str, layout)
     local keyboard = keyboardLayouts[layout]
 
@@ -33,6 +38,10 @@ local function key_score(key1, key2, str, layout)
     end
 end
 
+---@param key1 string
+---@param key2 string
+---@param str string
+---@return integer
 function Mnemonic_score(key1, key2, str)
     -- returns a bonus point if the keys are the first letter of a word
     local words = {}
@@ -56,6 +65,8 @@ function Mnemonic_score(key1, key2, str)
 end
 
 -- Function to generate all possible two-character combinations
+---@param str string
+---@return table
 local function generate_combos(str)
     str = str:gsub(config.leader, "")
     local pairs = {}
@@ -70,6 +81,8 @@ local function generate_combos(str)
     return pairs
 end
 
+---@param str string
+---@return table
 local function process_string(str)
     local combinations = generate_combos(str)
     local scores = {}
@@ -110,6 +123,9 @@ local function process_string(str)
     return sortedScores
 end
 
+---@param str string
+---@param combo string
+---@return string
 local function highlight_desc(str, combo)
     -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
     local newStr = str:lower()
@@ -117,7 +133,7 @@ local function highlight_desc(str, combo)
     for i = 1, #combo do
         local char = combo:sub(i, i)
         local pos = marked[char] or 1      -- Start searching from the last marked position or from the beginning
-        pos = newStr:find(char, pos, true) -- Find the position of the character
+        pos = newStr:find(char, pos, true) or 0
         if pos then
             newStr = newStr:sub(1, pos - 1) .. "[" .. char .. "]" .. newStr:sub(pos + 1)
             marked[char] = pos + 2 -- Mark this character's position
@@ -126,6 +142,8 @@ local function highlight_desc(str, combo)
     return newStr
 end
 
+---@param str string
+---@return table
 local function scoreTable(str)
     -- local results = utils.top5(process_string(str))
     local results = process_string(str)

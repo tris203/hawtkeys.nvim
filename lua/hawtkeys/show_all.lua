@@ -1,6 +1,7 @@
 M = {}
 local tsSearch = require("hawtkeys.ts")
 
+---@return table
 function M.show_all()
     local allKeys = tsSearch.get_all_keymaps()
     local resultTable = {}

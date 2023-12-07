@@ -1,5 +1,8 @@
 M = {}
 
+--- @param table table
+--- @param value string
+---@return boolean
 function M.tableContains(table, value)
     if table == nil then
         return false
@@ -12,10 +15,15 @@ function M.tableContains(table, value)
     return false
 end
 
+---@param a table
+---@param b table
+---@return boolean
 function M.Score_sort(a, b)
     return a.score > b.score
 end
 
+---@param scores_table table
+---@return table
 function M.top5(scores_table)
     local top_list = {}
     for i = 1, 5 do
@@ -24,6 +32,9 @@ function M.top5(scores_table)
     return top_list
 end
 
+---@param t1 table
+---@param t2 table
+---@return table
 function M.mergeTables(t1, t2)
     local t3 = {}
 

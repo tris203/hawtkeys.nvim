@@ -3,7 +3,9 @@ local Path = require('plenary.path')
 local scan = require('plenary.scandir')
 local utils = require('hawtkeys.utils')
 local config = require('hawtkeys')
--- Function to fetch all functions in the file
+
+---@param dir string
+---@return table
 local function find_files(dir)
     print('Scanning dir' .. dir)
     local dirScan = dir or vim.fn.stdpath("config")
@@ -11,6 +13,8 @@ local function find_files(dir)
     return files
 end
 
+---@param file_path string
+---@return table
 local function find_maps_in_file(file_path)
     print("Scanning files " .. file_path)
     local file_content = Path:new(file_path):read()
@@ -40,6 +44,7 @@ local function find_maps_in_file(file_path)
     return ts_keymaps
 end
 
+---@return table
 local function get_keymaps_from_vim()
     local vim_keymaps = {}
 
@@ -57,10 +62,12 @@ local function get_keymaps_from_vim()
     return vim_keymaps
 end
 
+---@return string[]
 local function getRTP()
     return vim.api.nvim_list_runtime_paths()
 end
 
+---@return table
 function M.get_all_keymaps()
     local keymaps = {}
     --[[ if next(keymaps) ~= nil then
