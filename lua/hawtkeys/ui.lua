@@ -2,9 +2,19 @@ M = {}
 Hawtkeys = require('hawtkeys.score')
 ShowAll = require('hawtkeys.show_all')
 M.search = function(text)
-  vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, Hawtkeys.ScoreTable(text))
-end
+  local returnText = Hawtkeys.ScoreTable(text)
+  vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, returnText)
 
+  --loop lines and hilight if already mapped:
+  for i, line in ipairs(returnText) do
+    if string.match(line, "^Already mapped:.*") then
+      vim.api.nvim_buf_add_highlight(ResultBuf, -1, "HawtkeyAlreadyMapped", i - 1, 0, -1)
+      vim.api.nvim_buf_add_highlight(ResultBuf, -1, "HawtkeyAlreadyMapped", i, 0, -1)
+      vim.api.nvim_buf_add_highlight(ResultBuf, -1, "HawtkeyAlreadyMapped", i - 2, 0, -1)
+    end
+  end
+  vim.api.nvim_set_hl(0, "HawtkeyAlreadyMapped", { fg = "#ff0000" })
+end
 M.show = function()
   ResultBuf = vim.api.nvim_create_buf(false, true)
   local ui = vim.api.nvim_list_uis()[1]
