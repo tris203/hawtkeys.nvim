@@ -4,6 +4,7 @@ local scan = require('plenary.scandir')
 local utils = require('hawtkeys.utils')
 local config = require('hawtkeys')
 
+local keymaps = {}
 ---@param dir string
 ---@return table
 local function find_files(dir)
@@ -69,10 +70,9 @@ end
 
 ---@return table
 function M.get_all_keymaps()
-    local keymaps = {}
-    --[[ if next(keymaps) ~= nil then
+    if next(keymaps) ~= nil then
         return keymaps
-    end ]]
+    end
     local paths = getRTP()
     for _, path in ipairs(paths) do
         if string.match(path, "%.config") then
