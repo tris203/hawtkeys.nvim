@@ -8,7 +8,7 @@ It takes into consideration keyboard layout, easy to press combinations and memo
 Installation instructions to follow, but as usual with package managers
 ```lua
 return {
-dir = "tris203/hawtkeys.nvim",
+"tris203/hawtkeys.nvim",
 config = true,
 }
 ```
@@ -27,14 +27,17 @@ The default config is below, but can be changed by passing a table in config wit
     homerow = 2
     powerFingers = { 2, 3, 6, 7 }
     keyboardLayout = "qwerty",
-    keymap = "<leader>hwt"
 }
 ```
 
 ## Usage
 
+### Searching New Keymaps
+
+There are two interfaces to hawtkeys, the first allows you to Search For Keymaps:
+
 ```
-:lua require("hawtkeys.ui").show()
+:Hawtkeys
 ```
 
 This will allow you to search keybinds as below:
@@ -42,6 +45,19 @@ This will allow you to search keybinds as below:
 <div align="center">
     <img src="images/demo.gif" alt="demo">
 </div>
+
+### Show All Existing Keymaps
+
+```
+:HawtkeysAll
+```
+
+This will launch a window showing all existing keymaps collected from Neovim bindings and from anlysis of your config file.
+
+## Current Issues
+
+* Currently on large configs, the search can take a while to iterate through your config.
+* Where a custom remap function is used, keymaps may be missed.
 
 ## Contributing
 

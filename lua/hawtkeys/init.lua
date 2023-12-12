@@ -4,9 +4,12 @@ function M.setup(config)
     M.homerow = config.homerow or 2
     M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
     M.keyboardLayout = config.keyboardLayout or "qwerty"
-    M.keymap = config.keymap or "<leader>hwt"
-    vim.api.nvim_set_keymap('n', M.keymap, ':lua require("hawtkeys.ui").show()<CR>',
-        { noremap = true, silent = true })
+    vim.api.nvim_create_user_command("Hawtkeys",
+       "lua require('hawtkeys.ui').show()",
+        {})
+    vim.api.nvim_create_user_command("HawtkeysAll",
+        "lua require('hawtkeys.ui').showAll()",
+        {})
 end
 
 return M
