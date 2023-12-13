@@ -18,19 +18,42 @@ end
 ---@return table
 local function find_maps_in_file(file_path)
     print("Scanning files " .. file_path)
+    --if not a lua file, return empty table
+    if not string.match(file_path, "%.lua$") then
+        return {}
+    end
     local file_content = Path:new(file_path):read()
-    local parser = vim.treesitter.get_string_parser(file_content, 'lua') -- Get the Lua parser
-    local tree = parser:parse()[1]
-    local matchFunc = { 'vim.keymap.set', 'vim.api.nvim_set_keymap' }
-    local ts_keymaps = {}
+    local parser       = vim.treesitter.get_string_parser(file_content, 'lua', {}) -- Get the Lua parser
+    local tree         = parser:parse()[1]:root()
+    local ts_keymaps   = {}
+    local query        = vim.treesitter.query.parse("lua", [[
+                                                            (function_call
+                                                            name: (dot_index_expression) @exp (#any-of? @exp "vim.api.nvim_set_keymap" "vim.keymap.set")
+                                                            (arguments) @args
+                                                            )
+]])
 
-    for node in tree:root():iter_children() do
-        if node:type() == "function_call" and
-            utils.tableContains(matchFunc, vim.treesitter.get_node_text(node:child(0), file_content)
-            ) then
+    for id, node in query:iter_captures(tree, file_content, 0, -1) do
+        if query.captures[id] == "args" then
+            print(vim.inspect(node))
+            print(vim.treesitter.get_node_text(node, file_content))
+
+
+
+            --[[ table.insert(ts_keymaps, {
+                mode = vim.treesitter.get_node_text(node:child(1), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                    "%2"):gsub("[\n\r]", ""),
+                lhs = vim.treesitter.get_node_text(node:child(2), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                    "%2"):gsub("[\n\r]", ""),
+                rhs = vim.treesitter.get_node_text(node:child(3), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                    "%2"):gsub("[\n\r]", ""),
+                from_file = file_path,
+            }) ]]
+
+
             -- TODO: This currently doesnt always work, as the options for helper functions are different,
             -- need to use TS to resolve it back to a native keymap function
-            table.insert(ts_keymaps, {
+            --[[ table.insert(ts_keymaps, {
                 mode = vim.treesitter.get_node_text(node:child(1):child(1), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
                     "%2"):gsub("[\n\r]", ""),
                 lhs = vim.treesitter.get_node_text(node:child(1):child(3), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
@@ -38,7 +61,7 @@ local function find_maps_in_file(file_path)
                 rhs = vim.treesitter.get_node_text(node:child(1):child(5), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
                     "%2"):gsub("[\n\r]", ""),
                 from_file = file_path,
-            })
+            }) ]]
         end
     end
 
