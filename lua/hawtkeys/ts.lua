@@ -3,8 +3,10 @@ local Path = require('plenary.path')
 local scan = require('plenary.scandir')
 local utils = require('hawtkeys.utils')
 local config = require('hawtkeys')
+local ts = require("nvim-treesitter.compat")
+local ts_query = require("nvim-treesitter.query")
 
-local keymaps = {}
+local return_keymaps = {}
 ---@param dir string
 ---@return table
 local function find_files(dir)
@@ -18,27 +20,35 @@ end
 ---@return table
 local function find_maps_in_file(file_path)
     print("Scanning files " .. file_path)
+    --if not a lua file, return empty table
+    if not string.match(file_path, "%.lua$") then
+        return {}
+    end
     local file_content = Path:new(file_path):read()
-    local parser = vim.treesitter.get_string_parser(file_content, 'lua') -- Get the Lua parser
-    local tree = parser:parse()[1]
-    local matchFunc = { 'vim.keymap.set', 'vim.api.nvim_set_keymap' }
-    local ts_keymaps = {}
-
-    for node in tree:root():iter_children() do
-        if node:type() == "function_call" and
-            utils.tableContains(matchFunc, vim.treesitter.get_node_text(node:child(0), file_content)
-            ) then
-            -- TODO: This currently doesnt always work, as the options for helper functions are different,
-            -- need to use TS to resolve it back to a native keymap function
-            table.insert(ts_keymaps, {
-                mode = vim.treesitter.get_node_text(node:child(1):child(1), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
-                    "%2"):gsub("[\n\r]", ""),
-                lhs = vim.treesitter.get_node_text(node:child(1):child(3), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
-                    "%2"):gsub("[\n\r]", ""),
-                rhs = vim.treesitter.get_node_text(node:child(1):child(5), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
-                    "%2"):gsub("[\n\r]", ""),
-                from_file = file_path,
-            })
+    local parser       = vim.treesitter.get_string_parser(file_content, 'lua', {}) -- Get the Lua parser
+    local tree         = parser:parse()[1]:root()
+    local ts_keymaps   = {}
+    -- TODO: This currently doesnt always work, as the options for helper functions are different,
+    -- need to use TS to resolve it back to a native keymap function
+    local query        = ts.parse_query("lua", [[
+                                                            (function_call
+                                                            name: (dot_index_expression) @exp (#any-of? @exp "vim.api.nvim_set_keymap" "vim.keymap.set")
+                                                            (arguments) @args
+                                                            )
+]])
+    for match in ts_query.iter_prepared_matches(query, tree, file_content, 0, -1) do
+        for type, node in pairs(match) do
+            if type == "args" then
+                table.insert(ts_keymaps, {
+                    mode = vim.treesitter.get_node_text(node.node:child(1), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                        "%2"):gsub("[\n\r]", ""),
+                    lhs = vim.treesitter.get_node_text(node.node:child(3), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                        "%2"):gsub("[\n\r]", ""),
+                    rhs = vim.treesitter.get_node_text(node.node:child(5), file_content):gsub("^%s*(['\"])(.*)%1%s*$",
+                        "%2"):gsub("[\n\r]", ""),
+                    from_file = file_path,
+                })
+            end
         end
     end
 
@@ -70,9 +80,10 @@ end
 
 ---@return table
 function M.get_all_keymaps()
-    if next(keymaps) ~= nil then
-        return keymaps
+    if next(return_keymaps) ~= nil then
+        return return_keymaps
     end
+    local keymaps = {}
     local paths = getRTP()
     for _, path in ipairs(paths) do
         if string.match(path, "%.config") then
@@ -86,7 +97,6 @@ function M.get_all_keymaps()
         end
     end
     local vim_keymaps = get_keymaps_from_vim()
-    local return_keymaps = {}
     return_keymaps = utils.mergeTables(keymaps, vim_keymaps)
     return return_keymaps
 end
