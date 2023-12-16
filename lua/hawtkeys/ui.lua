@@ -1,6 +1,10 @@
-M = {}
-Hawtkeys = require("hawtkeys.score")
-ShowAll = require("hawtkeys.show_all")
+local M = {}
+local Hawtkeys = require("hawtkeys.score")
+local ShowAll = require("hawtkeys.show_all")
+local ResultWin = 0
+local ResultBuf = 0
+local SearchWin = 0
+
 M.search = function(text)
     local returnText = Hawtkeys.ScoreTable(text)
     vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, returnText)
