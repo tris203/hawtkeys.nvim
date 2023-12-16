@@ -19,18 +19,40 @@ local function key_score(key1, key2, str, layout)
         local key1Data = keyboard[key1]
         local key2Data = keyboard[key2]
 
-
         -- The higher the score the better
         local doubleCharBonus = (key1 == key2) and 3 or 0
-        local sameFingerPenalty = (key1Data.finger == key2Data.finger) and 1 or 0
-        local homerowBonus = (key1Data.row == config.homerow and key2Data.row == config.homerow) and 1 or 0
-        local powerFinger1Bonus = (key1Data.finger == config.powerFingers[1] or key1Data.finger == config.powerFingers[2] or key1Data.finger == config.powerFingers[3] or key1Data.finger == config.powerFingers[4]) and
-            1 or 0
-        local powerFinger2Bonus = (key2Data.finger == config.powerFingers[1] or key2Data.finger == config.powerFingers[2] or key2Data.finger == config.powerFingers[3] or key2Data.finger == config.powerFingers[4]) and
-            1 or 0
+        local sameFingerPenalty = (key1Data.finger == key2Data.finger) and 1
+            or 0
+        local homerowBonus = (
+            key1Data.row == config.homerow
+            and key2Data.row == config.homerow
+        )
+                and 1
+            or 0
+        local powerFinger1Bonus = (
+            key1Data.finger == config.powerFingers[1]
+            or key1Data.finger == config.powerFingers[2]
+            or key1Data.finger == config.powerFingers[3]
+            or key1Data.finger == config.powerFingers[4]
+        )
+                and 1
+            or 0
+        local powerFinger2Bonus = (
+            key2Data.finger == config.powerFingers[1]
+            or key2Data.finger == config.powerFingers[2]
+            or key2Data.finger == config.powerFingers[3]
+            or key2Data.finger == config.powerFingers[4]
+        )
+                and 1
+            or 0
         local mnemonicBonus = Mnemonic_score(key1, key2, str)
-        local score = (doubleCharBonus + homerowBonus + powerFinger1Bonus + powerFinger2Bonus + mnemonicBonus) -
-            sameFingerPenalty
+        local score = (
+            doubleCharBonus
+            + homerowBonus
+            + powerFinger1Bonus
+            + powerFinger2Bonus
+            + mnemonicBonus
+        ) - sameFingerPenalty
 
         return score
     else
@@ -72,7 +94,7 @@ local function generate_combos(str)
     local pairs = {}
     local len = #str
     for i = 1, len - 1 do
-        local char1 = str:sub(i, i):lower()     -- Convert characters to lowercase
+        local char1 = str:sub(i, i):lower() -- Convert characters to lowercase
         for j = i + 1, len do
             local char2 = str:sub(j, j):lower() -- Convert characters to lowercase
             table.insert(pairs, char1 .. char2)
@@ -100,7 +122,6 @@ local function process_string(str)
     end
     table.sort(sortedScores, utils.Score_sort)
 
-
     local already_used_keys = tsSearch.get_all_keymaps()
 
     local find_mapping = function(maps, lhs)
@@ -113,12 +134,16 @@ local function process_string(str)
     end
 
     for i = #sortedScores, 1, -1 do
-        if find_mapping(already_used_keys, '<leader>' .. sortedScores[i].combo) then
-            local mapping = find_mapping(already_used_keys, '<leader>' .. sortedScores[i].combo)
+        if
+            find_mapping(already_used_keys, "<leader>" .. sortedScores[i].combo)
+        then
+            local mapping = find_mapping(
+                already_used_keys,
+                "<leader>" .. sortedScores[i].combo
+            )
             sortedScores[i].already_mapped = mapping
         end
     end
-
 
     return sortedScores
 end
@@ -132,10 +157,14 @@ local function highlight_desc(str, combo)
     local marked = {} -- Keep track of characters already marked
     for i = 1, #combo do
         local char = combo:sub(i, i)
-        local pos = marked[char] or 1      -- Start searching from the last marked position or from the beginning
+        local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
         pos = newStr:find(char, pos, true) or 0
         if pos then
-            newStr = newStr:sub(1, pos - 1) .. "[" .. char .. "]" .. newStr:sub(pos + 1)
+            newStr = newStr:sub(1, pos - 1)
+                .. "["
+                .. char
+                .. "]"
+                .. newStr:sub(pos + 1)
             marked[char] = pos + 2 -- Mark this character's position
         end
     end
@@ -148,20 +177,29 @@ local function scoreTable(str)
     -- local results = utils.top5(process_string(str))
     local results = process_string(str)
     local resultTable = {}
-    for _, data in ipairs(results)
-    do
-        table.insert(resultTable,
-            "Key: " ..
-            highlight_desc(str, data.combo) ..
-            "<leader>" ..
-            data.combo ..
-            " - Hawt Score: " ..
-            data.score)
-        if data.already_mapped ~= nil and data.already_mapped.rhs ~= nil and data.already_mapped.from_file ~= nil then
-            table.insert(resultTable,
-                "Already mapped: " .. tostring(data.already_mapped.rhs))
-            table.insert(resultTable,
-                "In File" .. (data.already_mapped.from_file))
+    for _, data in ipairs(results) do
+        table.insert(
+            resultTable,
+            "Key: "
+                .. highlight_desc(str, data.combo)
+                .. "<leader>"
+                .. data.combo
+                .. " - Hawt Score: "
+                .. data.score
+        )
+        if
+            data.already_mapped ~= nil
+            and data.already_mapped.rhs ~= nil
+            and data.already_mapped.from_file ~= nil
+        then
+            table.insert(
+                resultTable,
+                "Already mapped: " .. tostring(data.already_mapped.rhs)
+            )
+            table.insert(
+                resultTable,
+                "In File" .. data.already_mapped.from_file
+            )
         end
     end
     return resultTable
