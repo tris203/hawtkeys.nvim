@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 local tsSearch = require("hawtkeys.ts")
 
 ---@return table

@@ -1,4 +1,4 @@
-M = {}
+local M = {}
 
 --- @param table table
 --- @param value string

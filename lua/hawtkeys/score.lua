@@ -6,6 +6,32 @@ local utils = require("hawtkeys.utils")
 ---@param key1 string
 ---@param key2 string
 ---@param str string
+---@return integer
+local function Mnemonic_score(key1, key2, str)
+    -- returns a bonus point if the keys are the first letter of a word
+    local words = {}
+    for word in str:gmatch("%S+") do
+        table.insert(words, word)
+    end
+
+    local bonus = 0
+    for _, word in ipairs(words) do
+        if word:sub(1, 1):lower() == key1 or word:sub(1, 1):lower() == key2 then
+            bonus = bonus + 1
+        end
+    end
+
+    --if key1 equals first letter of string then bonus = bonus + 1
+    if str:sub(1, 1):lower() == key1 then
+        bonus = bonus + 1
+    end
+
+    return bonus
+end
+
+---@param key1 string
+---@param key2 string
+---@param str string
 ---@param layout string
 ---@return integer
 local function key_score(key1, key2, str, layout)
@@ -58,32 +84,6 @@ local function key_score(key1, key2, str, layout)
     else
         return 0
     end
-end
-
----@param key1 string
----@param key2 string
----@param str string
----@return integer
-function Mnemonic_score(key1, key2, str)
-    -- returns a bonus point if the keys are the first letter of a word
-    local words = {}
-    for word in str:gmatch("%S+") do
-        table.insert(words, word)
-    end
-
-    local bonus = 0
-    for _, word in ipairs(words) do
-        if word:sub(1, 1):lower() == key1 or word:sub(1, 1):lower() == key2 then
-            bonus = bonus + 1
-        end
-    end
-
-    --if key1 equals first letter of string then bonus = bonus + 1
-    if str:sub(1, 1):lower() == key1 then
-        bonus = bonus + 1
-    end
-
-    return bonus
 end
 
 -- Function to generate all possible two-character combinations
