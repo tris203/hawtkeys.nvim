@@ -54,6 +54,15 @@ This will allow you to search keybinds as below:
 
 This will launch a window showing all existing keymaps collected from Neovim bindings and from anlysis of your config file.
 
+### Showing Duplicate Keymaps
+
+```
+HawtkeysDupes
+```
+
+Will show potential duplicate keymaps, where you have accidently set the same key for two different things. This can be useful for tracking down issues with plugins not functioning correctly
+
+
 ## Current Issues
 
 * Currently on large configs, the search can take a while to iterate through your config.
@@ -75,3 +84,9 @@ Outstanding items are currently in the TODO.md file.
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
+
+### Pre-Push Hook
+
+There is a pre-push hook present in ```.githooks/pre-push.sh```. This can be symlinked to ```.git/hooks/pre-push```.
+
+This will ensure that the same checks that will be run in CI are run when you push.
