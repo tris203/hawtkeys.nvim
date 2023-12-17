@@ -38,27 +38,43 @@ end
 function M.mergeTables(t1, t2)
     local t3 = {}
 
-    for _, v in pairs(t1) do
+    --[[ for _, v in pairs(t1) do
         table.insert(t3, v)
     end
 
     for _, v in pairs(t2) do
         table.insert(t3, v)
     end
+]]
 
-    --[[ for _, subtable in pairs(t2) do
-        for _, v in pairs(t1) do
-            if v.lhs == subtable.lhs then
-                print("skipping insert")
-                goto continue
+    for _, v in pairs(t1) do
+        table.insert(t3, v)
+    end
+
+    for _, v in pairs(t2) do
+        local found = false
+        for _, v2 in pairs(t3) do
+            if v2.lhs == v.lhs and v.from_file == "Vim Defaults" then
+                found = true
             end
-            table.insert(t3, subtable)
-            ::continue::
         end
-    end ]]
-    -- TODO: Merge better, so that t1 is prioritised
-
+        if not found then
+            table.insert(t3, v)
+        end
+    end
     return t3
+end
+
+function M.findDuplicates(keymaps)
+    local duplicates = {}
+    for _, v in pairs(keymaps) do
+        for _, v2 in pairs(keymaps) do
+            if v.lhs == v2.lhs and v.mode == v2.mode and v.rhs ~= v2.rhs then
+                table.insert(duplicates, { v.lhs, { v }, { v2 } })
+            end
+        end
+    end
+    return duplicates
 end
 
 return M
