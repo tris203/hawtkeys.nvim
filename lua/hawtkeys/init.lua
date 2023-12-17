@@ -14,6 +14,11 @@ function M.setup(config)
         "lua require('hawtkeys.ui').showAll()",
         {}
     )
+    vim.api.nvim_create_user_command(
+        "HawtkeysDupes",
+        "lua require('hawtkeys.ui').showDupes()",
+        {}
+    )
 end
 
 return M

@@ -1,6 +1,8 @@
 local M = {}
 local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
+local showDuplicates = require("hawtkeys.duplicates")
+
 local ResultWin = 0
 local ResultBuf = 0
 local SearchWin = 0
@@ -122,6 +124,32 @@ M.hide = function()
     vim.api.nvim_win_close(ResultWin, true)
     vim.api.nvim_win_close(SearchWin, true)
     vim.api.nvim_command("stopinsert")
+end
+
+M.showDupes = function()
+    local ui = vim.api.nvim_list_uis()[1]
+    local width = 100
+    local height = 30
+    ResultBuf = vim.api.nvim_create_buf(false, true)
+    ResultWin = vim.api.nvim_open_win(ResultBuf, true, {
+        relative = "editor",
+        width = width,
+        height = height,
+        col = (ui.width / 2) - (width / 2),
+        row = (ui.height / 2) - (height / 2),
+        anchor = "NW",
+        footer = "Duplicate Keybindings",
+        footer_pos = "center",
+        border = "single",
+        noautocmd = true,
+    })
+    vim.api.nvim_buf_set_lines(
+        ResultBuf,
+        0,
+        -1,
+        false,
+        showDuplicates.show_duplicates()
+    )
 end
 
 return M

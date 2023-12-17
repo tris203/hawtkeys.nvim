@@ -7,6 +7,7 @@ local ts = require("nvim-treesitter.compat")
 local ts_query = require("nvim-treesitter.query")
 
 local return_keymaps = {}
+local scanned_files = {}
 ---@param dir string
 ---@return table
 local function find_files(dir)
@@ -20,6 +21,11 @@ end
 ---@return table
 local function find_maps_in_file(file_path)
     print("Scanning files " .. file_path)
+    if scanned_files[file_path] then
+        print("Already scanned")
+        return {}
+    end
+    scanned_files[file_path] = true
     --if not a lua file, return empty table
     if not string.match(file_path, "%.lua$") then
         return {}
