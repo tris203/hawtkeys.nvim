@@ -47,21 +47,36 @@ local function find_maps_in_file(file_path)
     for match in tsQuery.iter_prepared_matches(query, tree, file_content, 0, -1) do
         for type, node in pairs(match) do
             if type == "args" then
-                table.insert(tsKemaps, {
-                    mode = vim.treesitter
-                        .get_node_text(node.node:child(1), file_content)
-                        :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
-                        :gsub("[\n\r]", ""),
-                    lhs = vim.treesitter
-                        .get_node_text(node.node:child(3), file_content)
-                        :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
-                        :gsub("[\n\r]", ""),
-                    rhs = vim.treesitter
-                        .get_node_text(node.node:child(5), file_content)
-                        :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
-                        :gsub("[\n\r]", ""),
-                    from_file = file_path,
-                })
+                local buf_local = false
+                local opts_arg = node.node:child(7)
+                -- the opts table arg of `vim.keymap.set` is optional, only
+                -- do this check if it's present.
+                if opts_arg then
+                    -- check for `buffer = <any>`, since we shouldn't show
+                    -- buf-local mappings
+                    buf_local = vim.treesitter
+                        .get_node_text(opts_arg, file_content)
+                        :gsub("[\n\r]", "")
+                        :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
+                end
+
+                if not buf_local then
+                    table.insert(tsKemaps, {
+                        mode = vim.treesitter
+                            .get_node_text(node.node:child(1), file_content)
+                            :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
+                            :gsub("[\n\r]", ""),
+                        lhs = vim.treesitter
+                            .get_node_text(node.node:child(3), file_content)
+                            :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
+                            :gsub("[\n\r]", ""),
+                        rhs = vim.treesitter
+                            .get_node_text(node.node:child(5), file_content)
+                            :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
+                            :gsub("[\n\r]", ""),
+                        from_file = file_path,
+                    })
+                end
             end
         end
     end
