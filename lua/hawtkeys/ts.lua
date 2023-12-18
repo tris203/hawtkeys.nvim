@@ -6,7 +6,6 @@ local config = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 
-local returnKeymaps = {}
 local scannedFiles = {}
 ---@param dir string
 ---@return table
@@ -95,9 +94,10 @@ end
 
 ---@return table
 function M.get_all_keymaps()
-    if next(returnKeymaps) ~= nil then
+    local returnKeymaps
+    --[[ if next(returnKeymaps) ~= nil then
         return returnKeymaps
-    end
+    end ]]
     local keymaps = {}
     local paths = get_runtime_path()
     for _, path in ipairs(paths) do
@@ -113,6 +113,7 @@ function M.get_all_keymaps()
     end
     local vimKeymaps = get_keymaps_from_vim()
     returnKeymaps = utils.merge_tables(keymaps, vimKeymaps)
+    scannedFiles = {}
     return returnKeymaps
 end
 
