@@ -3,7 +3,7 @@ local M = {}
 --- @param table table
 --- @param value string
 ---@return boolean
-function M.tableContains(table, value)
+function M.table_contains(table, value)
     if table == nil then
         return false
     end
@@ -18,7 +18,7 @@ end
 ---@param a table
 ---@param b table
 ---@return boolean
-function M.Score_sort(a, b)
+function M.score_sort(a, b)
     return a.score > b.score
 end
 
@@ -35,7 +35,7 @@ end
 ---@param t1 table
 ---@param t2 table
 ---@return table
-function M.mergeTables(t1, t2)
+function M.merge_tables(t1, t2)
     local t3 = {}
 
     --[[ for _, v in pairs(t1) do
@@ -65,7 +65,7 @@ function M.mergeTables(t1, t2)
     return t3
 end
 
-function M.findDuplicates(keymaps)
+function M.find_duplicates(keymaps)
     local duplicates = {}
     for _, v in pairs(keymaps) do
         for _, v2 in pairs(keymaps) do

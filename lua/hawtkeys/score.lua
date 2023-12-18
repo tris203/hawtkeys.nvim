@@ -7,7 +7,7 @@ local utils = require("hawtkeys.utils")
 ---@param key2 string
 ---@param str string
 ---@return integer
-local function Mnemonic_score(key1, key2, str)
+local function mnemonic_score(key1, key2, str)
     -- returns a bonus point if the keys are the first letter of a word
     local words = {}
     for word in str:gmatch("%S+") do
@@ -71,7 +71,7 @@ local function key_score(key1, key2, str, layout)
         )
                 and 1
             or 0
-        local mnemonicBonus = Mnemonic_score(key1, key2, str)
+        local mnemonicBonus = mnemonic_score(key1, key2, str)
         local score = (
             doubleCharBonus
             + homerowBonus
@@ -120,7 +120,7 @@ local function process_string(str)
     for combo, score in pairs(scores) do
         table.insert(sortedScores, { combo = combo, score = score })
     end
-    table.sort(sortedScores, utils.Score_sort)
+    table.sort(sortedScores, utils.score_sort)
 
     local already_used_keys = tsSearch.get_all_keymaps()
 
