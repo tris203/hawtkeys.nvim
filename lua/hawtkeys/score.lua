@@ -106,7 +106,7 @@ end
 
 ---@param str string
 ---@return table
-local function process_string(str)
+local function find_matches(str)
     local combinations = generate_combos(str)
     local scores = {}
 
@@ -150,68 +150,11 @@ local function process_string(str)
     return sortedScores
 end
 
----@param str string
----@param combo string
----@return string
-local function highlight_desc(str, combo)
-    -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
-    local newStr = str:lower()
-    local marked = {} -- Keep track of characters already marked
-    for i = 1, #combo do
-        local char = combo:sub(i, i)
-        local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
-        pos = newStr:find(char, pos, true) or 0
-        if pos then
-            newStr = newStr:sub(1, pos - 1)
-                .. "["
-                .. char
-                .. "]"
-                .. newStr:sub(pos + 1)
-            marked[char] = pos + 2 -- Mark this character's position
-        end
-    end
-    return newStr
-end
-
----@param str string
----@return table
-local function scoreTable(str)
-    -- local results = utils.top5(process_string(str))
-    local results = process_string(str)
-    local resultTable = {}
-    for _, data in ipairs(results) do
-        table.insert(
-            resultTable,
-            "Key: "
-                .. highlight_desc(str, data.combo)
-                .. "<leader>"
-                .. data.combo
-                .. " - Hawt Score: "
-                .. data.score
-        )
-        if
-            data.already_mapped ~= nil
-            and data.already_mapped.rhs ~= nil
-            and data.already_mapped.from_file ~= nil
-        then
-            table.insert(
-                resultTable,
-                "Already mapped: " .. tostring(data.already_mapped.rhs)
-            )
-            table.insert(
-                resultTable,
-                "In File" .. data.already_mapped.from_file
-            )
-        end
-    end
-    return resultTable
-end
-
 local function reset_already_used_keys()
     already_used_keys = nil
 end
 
 return {
-    ScoreTable = scoreTable,
+    ScoreTable = find_matches,
     ResetAlreadyUsedKeys = reset_already_used_keys,
 }

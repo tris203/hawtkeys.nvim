@@ -43,27 +43,93 @@ local function create_win(enter, opts)
     return win, buf
 end
 
-M.search = function(text)
-    local returnText = Hawtkeys.ScoreTable(text)
-    vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, returnText)
+---@param str string
+---@param combo string
+---@return string
+local function highlight_desc(str, combo)
+    -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
+    local newStr = str:lower()
+    local marked = {} -- Keep track of characters already marked
+    for i = 1, #combo do
+        local char = combo:sub(i, i)
+        local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
+        pos = newStr:find(char, pos, true) or 0
+        if pos then
+            newStr = newStr:sub(1, pos - 1)
+                .. "["
+                .. char
+                .. "]"
+                .. newStr:sub(pos + 1)
+            marked[char] = pos + 2 -- Mark this character's position
+        end
+    end
+    return newStr
+end
 
-    --loop lines and hilight if already mapped:
-    for i, line in ipairs(returnText) do
-        if string.match(line, "^Already mapped:.*") then
+M.search = function(text)
+    local results = Hawtkeys.ScoreTable(text)
+
+    -- track line count separately because we insert 1-3 lines
+    -- per iteration
+    local line_count = 0
+    for i = 1, #results do
+        local data = results[i]
+        local lines = {}
+        table.insert(
+            lines,
+            "Key: "
+                .. highlight_desc(text, data.combo)
+                .. "<leader>"
+                .. data.combo
+                .. " - Hawt Score: "
+                .. data.score
+        )
+        line_count = line_count + 1
+        local already_mapped = false
+        if
+            data.already_mapped ~= nil
+            and data.already_mapped.rhs ~= nil
+            and data.already_mapped.from_file ~= nil
+        then
+            already_mapped = true
+            line_count = line_count + 2
+            table.insert(
+                lines,
+                "Already mapped: " .. tostring(data.already_mapped.rhs)
+            )
+            table.insert(lines, "In File" .. data.already_mapped.from_file)
+        end
+        vim.api.nvim_buf_set_lines(
+            ResultBuf,
+            i == 1 and 0 or -1,
+            -1,
+            true,
+            lines
+        )
+
+        if already_mapped then
+            local hl = "ErrorMsg"
             vim.api.nvim_buf_add_highlight(
                 ResultBuf,
                 -1,
-                "ErrorMsg",
-                i - 1,
+                hl,
+                line_count - 3,
                 0,
                 -1
             )
-            vim.api.nvim_buf_add_highlight(ResultBuf, -1, "ErrorMsg", i, 0, -1)
             vim.api.nvim_buf_add_highlight(
                 ResultBuf,
                 -1,
-                "ErrorMsg",
-                i - 2,
+                hl,
+                line_count - 2,
+                0,
+                -1
+            )
+            vim.api.nvim_buf_add_highlight(
+                ResultBuf,
+                -1,
+                hl,
+                line_count - 1,
                 0,
                 -1
             )
