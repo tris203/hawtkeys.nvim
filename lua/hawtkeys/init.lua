@@ -1,5 +1,6 @@
 local M = {}
 function M.setup(config)
+    config = config or {}
     M.leader = config.leader or " "
     M.homerow = config.homerow or 2
     M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
