@@ -42,9 +42,8 @@ There are two interfaces to hawtkeys, the first allows you to Search For Keymaps
 
 This will allow you to search keybinds as below:
 
-<div align="center">
-    <img src="images/demo.gif" alt="demo">
-</div>
+![demo](https://github.com/tris203/hawtkeys.nvim/assets/18444302/3e2d0851-4c6d-480f-97a0-a4112d0a6923)
+
 
 ### Show All Existing Keymaps
 
