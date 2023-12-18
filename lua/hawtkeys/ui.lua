@@ -100,7 +100,7 @@ M.show = function()
     vim.api.nvim_command("startinsert")
 end
 
-M.showAll = function()
+M.show_all = function()
     local ui = vim.api.nvim_list_uis()[1]
     local width = 100
     local height = 30
@@ -126,7 +126,7 @@ M.hide = function()
     vim.api.nvim_command("stopinsert")
 end
 
-M.showDupes = function()
+M.show_dupes = function()
     local ui = vim.api.nvim_list_uis()[1]
     local width = 100
     local height = 30
