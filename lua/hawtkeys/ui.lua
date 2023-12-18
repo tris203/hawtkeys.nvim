@@ -154,6 +154,7 @@ M.hide = function()
     if SearchWin and vim.api.nvim_win_is_valid(SearchWin) then
         vim.api.nvim_win_close(SearchWin, true)
     end
+    Hawtkeys.ResetAlreadyUsedKeys()
     SearchWin = nil
     ResultWin = nil
     vim.api.nvim_command("stopinsert")

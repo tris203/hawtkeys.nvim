@@ -2,6 +2,7 @@ local config = require("hawtkeys")
 local keyboardLayouts = require("hawtkeys.keyboards")
 local tsSearch = require("hawtkeys.ts")
 local utils = require("hawtkeys.utils")
+local already_used_keys = {}
 
 ---@param key1 string
 ---@param key2 string
@@ -121,8 +122,9 @@ local function process_string(str)
         table.insert(sortedScores, { combo = combo, score = score })
     end
     table.sort(sortedScores, utils.score_sort)
-
-    local already_used_keys = tsSearch.get_all_keymaps()
+    if already_used_keys == nil then
+        already_used_keys = tsSearch.get_all_keymaps()
+    end
 
     local find_mapping = function(maps, lhs)
         for _, value in ipairs(maps) do
@@ -205,6 +207,11 @@ local function scoreTable(str)
     return resultTable
 end
 
+local function reset_already_used_keys()
+    already_used_keys = nil
+end
+
 return {
     ScoreTable = scoreTable,
+    ResetAlreadyUsedKeys = reset_already_used_keys,
 }
