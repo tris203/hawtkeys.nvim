@@ -3,9 +3,45 @@ local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
 local showDuplicates = require("hawtkeys.duplicates")
 
-local ResultWin = 0
-local ResultBuf = 0
-local SearchWin = 0
+local ResultWin
+local ResultBuf
+local SearchWin
+
+local function create_win(enter, opts)
+    opts = opts or {}
+    local wo = opts.win_options or {}
+    opts.win_options = nil
+
+    local buf = vim.api.nvim_create_buf(false, true)
+
+    local win = vim.api.nvim_open_win(
+        buf,
+        enter,
+        vim.tbl_deep_extend("keep", opts, {
+            relative = "editor",
+            anchor = "NW",
+            border = "single",
+            noautocmd = true,
+            col = (vim.o.columns / 2) - (opts.width / 2),
+            row = (vim.o.lines / 2) - (opts.height / 2),
+            footer_pos = opts.footer and "center",
+            title_pos = opts.title and "center",
+        })
+    )
+
+    vim.api.nvim_create_autocmd("BufLeave", {
+        buffer = buf,
+        callback = M.hide,
+    })
+
+    for opt, val in pairs(wo) do
+        vim.api.nvim_set_option_value(opt, val, {
+            win = win,
+        })
+    end
+
+    return win, buf
+end
 
 M.search = function(text)
     local returnText = Hawtkeys.ScoreTable(text)
@@ -34,114 +70,73 @@ M.search = function(text)
         end
     end
 end
+
 M.show = function()
-    ResultBuf = vim.api.nvim_create_buf(false, true)
-    local ui = vim.api.nvim_list_uis()[1]
+    M.hide()
     local width = 100
     local height = 30
-    ResultWin = vim.api.nvim_open_win(ResultBuf, true, {
-        relative = "editor",
+    ResultWin, ResultBuf = create_win(false, {
         width = width,
         height = height,
-        col = (ui.width / 2) - (width / 2),
-        row = (ui.height / 2) - (height / 2),
-        anchor = "NW",
+        -- vertical topleft and topright to look like
+        -- these are one window
+        border = { "│", "─", "│", "│", "┘", "─", "└", "│" },
+        zindex = 101,
         footer = "Suggested Keybindings",
-        footer_pos = "center",
-        border = "single",
-        noautocmd = true,
+        win_options = {
+            number = true,
+            relativenumber = false,
+        },
     })
-    local searchBuf = vim.api.nvim_create_buf(false, true)
-    SearchWin = vim.api.nvim_open_win(searchBuf, true, {
-        relative = "editor",
+    local searchBuf
+    SearchWin, searchBuf = create_win(true, {
         width = width,
         height = 1,
-        col = (ui.width / 2) - (width / 2),
-        row = (ui.height / 2) - (height / 2) - 2,
-        anchor = "NW",
-        border = "single",
+        row = (vim.o.lines / 2) - (height / 2) - 2,
         style = "minimal",
         title = "Enter Command Description",
-        title_pos = "center",
-        noautocmd = true,
+        win_options = {
+            number = false,
+            relativenumber = false,
+            statuscolumn = "> ",
+        },
     })
-    vim.api.nvim_buf_set_keymap(
-        searchBuf,
-        "i",
-        "<esc>",
-        "<cmd>lua require('hawtkeys.ui').hide()<cr>",
-        { noremap = true, silent = true }
-    )
-    vim.api.nvim_buf_set_keymap(
-        searchBuf,
-        "n",
-        "<esc>",
-        "<cmd>lua require('hawtkeys.ui').hide()<cr>",
-        { noremap = true, silent = true }
-    )
+
+    local map_opts = { noremap = true, silent = true, buffer = searchBuf }
+    vim.keymap.set({ "n", "i" }, "<esc>", M.hide, map_opts)
     --disallow new lines in searchBuf
-    vim.api.nvim_buf_set_keymap(
-        searchBuf,
-        "i",
-        "<cr>",
-        "<nop>",
-        { noremap = true, silent = true }
-    )
+    vim.keymap.set("i", "<cr>", "<nop>", map_opts)
+
     -- subscribe to changed text in searchBuf
     vim.api.nvim_buf_attach(searchBuf, false, {
-        on_lines = function()
-            vim.schedule(function()
-                M.search(vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1])
-            end)
-        end,
+        on_lines = vim.schedule_wrap(function()
+            M.search(vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1])
+        end),
     })
-    --
-    vim.api.nvim_set_current_buf(searchBuf)
+
     vim.api.nvim_command("startinsert")
 end
 
 M.show_all = function()
-    local ui = vim.api.nvim_list_uis()[1]
+    M.hide()
     local width = 100
     local height = 30
-    ResultBuf = vim.api.nvim_create_buf(false, true)
-    ResultWin = vim.api.nvim_open_win(ResultBuf, true, {
-        relative = "editor",
+    ResultWin, ResultBuf = create_win(true, {
         width = width,
         height = height,
-        col = (ui.width / 2) - (width / 2),
-        row = (ui.height / 2) - (height / 2),
-        anchor = "NW",
         footer = "Current Keybindings",
-        footer_pos = "center",
-        border = "single",
-        noautocmd = true,
     })
     vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, ShowAll.show_all())
 end
 
-M.hide = function()
-    vim.api.nvim_win_close(ResultWin, true)
-    vim.api.nvim_win_close(SearchWin, true)
-    vim.api.nvim_command("stopinsert")
-end
-
 M.show_dupes = function()
-    local ui = vim.api.nvim_list_uis()[1]
+    M.hide()
     local width = 100
     local height = 30
-    ResultBuf = vim.api.nvim_create_buf(false, true)
-    ResultWin = vim.api.nvim_open_win(ResultBuf, true, {
-        relative = "editor",
+    ResultWin, ResultBuf = create_win(true, {
         width = width,
         height = height,
-        col = (ui.width / 2) - (width / 2),
-        row = (ui.height / 2) - (height / 2),
-        anchor = "NW",
         footer = "Duplicate Keybindings",
-        footer_pos = "center",
-        border = "single",
-        noautocmd = true,
     })
     vim.api.nvim_buf_set_lines(
         ResultBuf,
@@ -150,6 +145,18 @@ M.show_dupes = function()
         false,
         showDuplicates.show_duplicates()
     )
+end
+
+M.hide = function()
+    if ResultWin and vim.api.nvim_win_is_valid(ResultWin) then
+        vim.api.nvim_win_close(ResultWin, true)
+    end
+    if SearchWin and vim.api.nvim_win_is_valid(SearchWin) then
+        vim.api.nvim_win_close(SearchWin, true)
+    end
+    SearchWin = nil
+    ResultWin = nil
+    vim.api.nvim_command("stopinsert")
 end
 
 return M
