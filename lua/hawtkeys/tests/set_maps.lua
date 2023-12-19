@@ -16,18 +16,18 @@ local normalMap = function(lhs, rhs)
 end
 normalMap("<leader>3", ':lua print("3 pressed")<CR>')
 
-local kmap = vim.api
+local shortIndex = vim.api
 
-kmap.nvim_set_keymap(
+shortIndex.nvim_set_keymap(
     "n",
     "<leader>4",
     ':lua print("4 pressed")<CR>',
     { noremap = true, silent = true }
 )
 
-local nmap = vim.api.nvim_set_keymap
+local shortFunc = vim.api.nvim_set_keymap
 
-nmap(
+shortFunc(
     "n",
     "<leader>5",
     ':lua print("5 pressed")<CR>',
@@ -39,10 +39,13 @@ local whichkey = require("which-key")
 whichkey.register({
     ["<leader>"] = {
         ["6"] = { ':lua print("6 pressed")<CR>', "Print 6" },
-    },
-})({
-    "plugin/example",
-    keys = {
-        { "<leader>7", ":lua print('7 pressed" },
+        ["7"] = { ':lua print("7 pressed")<CR>', "Print 7" },
     },
 })
+
+return {
+    "plugin/example",
+    keys = {
+        { "<leader>8", ":lua print('8 pressed" },
+    },
+}

@@ -8,12 +8,14 @@ local tsQuery = require("nvim-treesitter.query")
 
 ---@alias vimModes 'n' | 'x' | 'v' | 'i'
 
----@alias setMethods 'dot_index_expression' | 'index_expression' | 'function_call'
+---@alias setMethods 'dot_index_expression' | 'expression_list' | 'function_call'
+
+---@alias complexIndex table<number>
 
 ---@class keyMapArgs
 ---@field modeIndex number | vimModes
----@field lhsIndex number
----@field rhsIndex number
+---@field lhsIndex number | complexIndex
+---@field rhsIndex number | complexIndex
 ---@field optsIndex number|nil
 ---@field method setMethods
 
@@ -39,18 +41,24 @@ local keyMapSet = {
         rhsIndex = 2,
         method = "function_call",
     }, --method 3
-    ["kmap.nvim_set_keymap"] = {
+    ["shortIndex.nvim_set_keymap"] = {
         modeIndex = 1,
         lhsIndex = 2,
         rhsIndex = 3,
         method = "dot_index_expression",
     }, --method 4
-    ["nmap"] = {
+    ["shortFunc"] = {
         modeIndex = "n",
         lhsIndex = 1,
         rhsIndex = 2,
         method = "function_call",
     }, -- method 5
+    ["nmap"] = {
+        modeIndex = "n",
+        lhsIndex = 1,
+        rhsIndex = 2,
+        method = "function_call",
+    }, -- for my personal config - used in lsp-setup
 }
 
 ---@type table<string, boolean>
@@ -365,6 +373,10 @@ function M.get_all_keymaps()
     returnKeymaps = utils.merge_tables(keymaps, vimKeymaps)
     scannedFiles = {}
     return returnKeymaps
+end
+
+M.reset_scanned_files = function()
+    scannedFiles = {}
 end
 
 M.find_maps_in_file = find_maps_in_file
