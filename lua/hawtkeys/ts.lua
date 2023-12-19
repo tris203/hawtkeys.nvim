@@ -6,7 +6,6 @@ local config = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 
-
 ---@alias vimModes 'n' | 'x' | 'v' | 'i'
 
 ---@alias setMethods 'dot_index_expression' | 'index_expression' | 'function_call'
@@ -18,14 +17,40 @@ local tsQuery = require("nvim-treesitter.query")
 ---@field optsIndex number|nil
 ---@field method setMethods
 
-
 ---@type { [string] : keyMapArgs }
 local keyMapSet = {
-    ["vim.keymap.set"] = { modeIndex = 1, lhsIndex = 2, rhsIndex = 3, optsIndex = 4, method = "dot_index_expression" },          --method 1
-    ["vim.api.nvim_set_keymap"] = { modeIndex = 1, lhsIndex = 2, rhsIndex = 3, optsIndex = 4, method = 'dot_index_expression' }, --method 2
-    ["normalMap"] = { modeIndex = 'n', lhsIndex = 1, rhsIndex = 2, method = 'function_call' },                                   --method 3
-    ["kmap.nvim_set_keymap"] = { modeIndex = 1, lhsIndex = 2, rhsIndex = 3, method = 'dot_index_expression' },                   --method 4
-    ["nmap"] = { modeIndex = 'n', lhsIndex = 1, rhsIndex = 2, method = 'function_call' }                                           -- method 5
+    ["vim.keymap.set"] = {
+        modeIndex = 1,
+        lhsIndex = 2,
+        rhsIndex = 3,
+        optsIndex = 4,
+        method = "dot_index_expression",
+    }, --method 1
+    ["vim.api.nvim_set_keymap"] = {
+        modeIndex = 1,
+        lhsIndex = 2,
+        rhsIndex = 3,
+        optsIndex = 4,
+        method = "dot_index_expression",
+    }, --method 2
+    ["normalMap"] = {
+        modeIndex = "n",
+        lhsIndex = 1,
+        rhsIndex = 2,
+        method = "function_call",
+    }, --method 3
+    ["kmap.nvim_set_keymap"] = {
+        modeIndex = 1,
+        lhsIndex = 2,
+        rhsIndex = 3,
+        method = "dot_index_expression",
+    }, --method 4
+    ["nmap"] = {
+        modeIndex = "n",
+        lhsIndex = 1,
+        rhsIndex = 2,
+        method = "function_call",
+    }, -- method 5
 }
 
 ---@type table<string, boolean>
@@ -84,7 +109,7 @@ local function return_field_data(node, indexData, targetData, file_content)
     if success then
         result = result:gsub("[\n\r]", "")
         --remove surrounding quotes
-        result = result:gsub("^\"(.*)\"$", "%1")
+        result = result:gsub('^"(.*)"$', "%1")
         --remove single quotes
         result = result:gsub("^'(.*)'$", "%1")
         return result
@@ -101,7 +126,6 @@ local function find_files(dir)
     local files = scan.scan_dir(dirScan, { hidden = true })
     return files
 end
-
 
 ---@param file_path string
 ---@return table
@@ -121,23 +145,47 @@ local function find_maps_in_file(file_path)
     local tsKemaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dot_index_expression_query = ts.parse_query(
-        "lua",
-        build_dot_index_expression_query(keyMapSet)
-    )
-    for match in tsQuery.iter_prepared_matches(dot_index_expression_query, tree, file_content, 0, -1) do
+    local dot_index_expression_query =
+        ts.parse_query("lua", build_dot_index_expression_query(keyMapSet))
+    for match in
+        tsQuery.iter_prepared_matches(
+            dot_index_expression_query,
+            tree,
+            file_content,
+            0,
+            -1
+        )
+    do
         for type, node in pairs(match) do
             if type == "args" then
-                local parent = vim.treesitter.get_node_text(node.node:parent():child(0), file_content)
+                local parent = vim.treesitter.get_node_text(
+                    node.node:parent():child(0),
+                    file_content
+                )
                 local mapDef = keyMapSet[parent]
                 ---@type string
-                local mode = return_field_data(node.node, mapDef, "modeIndex", file_content)
+                local mode = return_field_data(
+                    node.node,
+                    mapDef,
+                    "modeIndex",
+                    file_content
+                )
 
                 ---@type string
-                local lhs = return_field_data(node.node, mapDef, "lhsIndex", file_content)
+                local lhs = return_field_data(
+                    node.node,
+                    mapDef,
+                    "lhsIndex",
+                    file_content
+                )
 
                 ---@type string
-                local rhs = return_field_data(node.node, mapDef, "rhsIndex", file_content)
+                local rhs = return_field_data(
+                    node.node,
+                    mapDef,
+                    "rhsIndex",
+                    file_content
+                )
                 local buf_local = false
                 local opts_arg = node.node:child(mapDef.optsIndex)
                 -- the opts table arg of `vim.keymap.set` is optional, only
@@ -182,24 +230,48 @@ local function find_maps_in_file(file_path)
         end
     end
 
-    local function_call_query = ts.parse_query(
-        "lua",
-        build_function_call_query(keyMapSet)
-    )
+    local function_call_query =
+        ts.parse_query("lua", build_function_call_query(keyMapSet))
 
-    for match in tsQuery.iter_prepared_matches(function_call_query, tree, file_content, 0, -1) do
+    for match in
+        tsQuery.iter_prepared_matches(
+            function_call_query,
+            tree,
+            file_content,
+            0,
+            -1
+        )
+    do
         for expCap, node in pairs(match) do
             if expCap == "args" then
-                local parent = vim.treesitter.get_node_text(node.node:parent():child(0), file_content)
+                local parent = vim.treesitter.get_node_text(
+                    node.node:parent():child(0),
+                    file_content
+                )
                 local mapDef = keyMapSet[parent]
                 ---@type string
-                local mode = return_field_data(node.node, mapDef, "modeIndex", file_content)
+                local mode = return_field_data(
+                    node.node,
+                    mapDef,
+                    "modeIndex",
+                    file_content
+                )
 
                 ---@type string
-                local lhs = return_field_data(node.node, mapDef, "lhsIndex", file_content)
+                local lhs = return_field_data(
+                    node.node,
+                    mapDef,
+                    "lhsIndex",
+                    file_content
+                )
 
                 ---@type string
-                local rhs = return_field_data(node.node, mapDef, "rhsIndex", file_content)
+                local rhs = return_field_data(
+                    node.node,
+                    mapDef,
+                    "rhsIndex",
+                    file_content
+                )
                 local buf_local = false
                 local opts_arg = node.node:child(mapDef.optsIndex)
                 -- the opts table arg of `vim.keymap.set` is optional, only
