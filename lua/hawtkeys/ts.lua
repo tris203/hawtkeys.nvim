@@ -48,9 +48,9 @@ local keyMapSet = {
         method = "dot_index_expression",
     }, --method 4
     ["shortFunc"] = {
-        modeIndex = "n",
-        lhsIndex = 1,
-        rhsIndex = 2,
+        modeIndex = 1,
+        lhsIndex = 2,
+        rhsIndex = 3,
         method = "function_call",
     }, -- method 5
     ["nmap"] = {
@@ -67,31 +67,46 @@ local scannedFiles = {}
 ---@param mapDefs keyMapArgs[]
 ---@return string
 local function build_dot_index_expression_query(mapDefs)
-    local query = "(function_call"
-    query = query .. "\nname: (dot_index_expression) @exp (#any-of? @exp "
-    for name, opts in pairs(mapDefs) do
-        if opts.method == "dot_index_expression" then
-            query = query .. ' "' .. name .. '"'
+    local query = [[
+    (function_call
+    (dot_index_expression) @exp (#any-of? @exp %s)
+        (arguments) @args)
+    ]]
+
+    ---@param params keyMapArgs[]
+    ---@return string
+    local function buildArgs(params)
+        local args = ""
+        for name, opts in pairs(params) do
+            if opts.method == "dot_index_expression" then
+                args = args .. ' "' .. name .. '"'
+            end
         end
+        return args
     end
-    query = query .. ")"
-    query = query .. "\n(arguments) @args)"
-    return query
+    return string.format(query, buildArgs(mapDefs))
 end
 
 ---@param mapDefs keyMapArgs[]
 ---@return string
 local function build_function_call_query(mapDefs)
-    local query = "(function_call"
-    query = query .. "\nname: (identifier) @exp (#any-of? @exp "
-    for name, opts in pairs(mapDefs) do
-        if opts.method == "function_call" then
-            query = query .. ' "' .. name .. '"'
+    local query = [[
+    (function_call
+        name: (identifier) @exp (#any-of? @exp %s)
+        (arguments) @args)
+    ]]
+    ---@param params keyMapArgs[]
+    ---@return string
+    local function buildArgs(params)
+        local args = ""
+        for name, opts in pairs(params) do
+            if opts.method == "function_call" then
+                args = args .. ' "' .. name .. '"'
+            end
         end
+        return args
     end
-    query = query .. ")"
-    query = query .. "\n(arguments) @args)"
-    return query
+    return string.format(query, buildArgs(mapDefs))
 end
 
 ---@param node TSNode
