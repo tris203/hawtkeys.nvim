@@ -91,11 +91,15 @@ local function get_keymaps_from_vim()
     local vim_keymaps_raw = vim.api.nvim_get_keymap("n")
     print("Collecting vim keymaps")
     for _, vim_keymap in ipairs(vim_keymaps_raw) do
+        local rhs = vim_keymap.rhs
+        if rhs == nil or rhs == "" then
+            rhs = vim_keymap.desc
+        end
         table.insert(vimKeymaps, {
             mode = vim_keymap.mode,
             -- TODO: leader subsitiution as vim keymaps contain raw leader
             lhs = vim_keymap.lhs:gsub(config.leader, "<leader>"),
-            rhs = vim_keymap.rhs,
+            rhs = rhs,
             from_file = "Vim Defaults",
         })
     end
