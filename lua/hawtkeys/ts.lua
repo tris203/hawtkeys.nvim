@@ -133,8 +133,10 @@ local function find_maps_in_file(filePath)
     local tsKemaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dotIndexExpressionQuery =
-        ts.parse_query("lua", build_dot_index_expression_query(config.keyMapSet))
+    local dotIndexExpressionQuery = ts.parse_query(
+        "lua",
+        build_dot_index_expression_query(config.keyMapSet)
+    )
     for match in
         tsQuery.iter_prepared_matches(
             dotIndexExpressionQuery,
