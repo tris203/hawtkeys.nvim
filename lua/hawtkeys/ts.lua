@@ -64,6 +64,19 @@ local keyMapSet = {
 ---@type table<string, boolean>
 local scannedFiles = {}
 
+---@param params keyMapArgs[]
+---@param method setMethods
+---@return string
+local function buildArgs(params, method)
+    local args = ""
+    for name, opts in pairs(params) do
+        if opts.method == method then
+            args = args .. ' "' .. name .. '"'
+        end
+    end
+    return args
+end
+
 ---@param mapDefs keyMapArgs[]
 ---@return string
 local function build_dot_index_expression_query(mapDefs)
@@ -73,18 +86,7 @@ local function build_dot_index_expression_query(mapDefs)
         (arguments) @args)
     ]]
 
-    ---@param params keyMapArgs[]
-    ---@return string
-    local function buildArgs(params)
-        local args = ""
-        for name, opts in pairs(params) do
-            if opts.method == "dot_index_expression" then
-                args = args .. ' "' .. name .. '"'
-            end
-        end
-        return args
-    end
-    return string.format(query, buildArgs(mapDefs))
+    return string.format(query, buildArgs(mapDefs, "dot_index_expression"))
 end
 
 ---@param mapDefs keyMapArgs[]
@@ -95,18 +97,7 @@ local function build_function_call_query(mapDefs)
         name: (identifier) @exp (#any-of? @exp %s)
         (arguments) @args)
     ]]
-    ---@param params keyMapArgs[]
-    ---@return string
-    local function buildArgs(params)
-        local args = ""
-        for name, opts in pairs(params) do
-            if opts.method == "function_call" then
-                args = args .. ' "' .. name .. '"'
-            end
-        end
-        return args
-    end
-    return string.format(query, buildArgs(mapDefs))
+    return string.format(query, buildArgs(mapDefs, "function_call"))
 end
 
 ---@param node TSNode
