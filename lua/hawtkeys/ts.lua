@@ -24,54 +24,6 @@ local tsQuery = require("nvim-treesitter.query")
 ---@class WhichKeyMapargs
 ---@field method WhichKeyMethods
 
----@type { [string] : TSKeyMapArgs | WhichKeyMapargs }
-local keyMapSet = {
-    ["vim.keymap.set"] = {
-        modeIndex = 1,
-        lhsIndex = 2,
-        rhsIndex = 3,
-        optsIndex = 4,
-        method = "dot_index_expression",
-    }, --method 1
-    ["vim.api.nvim_set_keymap"] = {
-        modeIndex = 1,
-        lhsIndex = 2,
-        rhsIndex = 3,
-        optsIndex = 4,
-        method = "dot_index_expression",
-    }, --method 2
-    ["normalMap"] = {
-        modeIndex = "n",
-        lhsIndex = 1,
-        rhsIndex = 2,
-        method = "function_call",
-    }, --method 3
-    ["shortIndex.nvim_set_keymap"] = {
-        modeIndex = 1,
-        lhsIndex = 2,
-        rhsIndex = 3,
-        method = "dot_index_expression",
-    }, --method 4
-    ["shortFunc"] = {
-        modeIndex = 1,
-        lhsIndex = 2,
-        rhsIndex = 3,
-        method = "function_call",
-    }, -- method 5
-    ["nmap"] = {
-        modeIndex = "n",
-        lhsIndex = 1,
-        rhsIndex = 2,
-        method = "function_call",
-    }, -- for my personal config - used in lsp-setup
-    ["whichkey.register"] = {
-        method = "which_key",
-    }, -- method 6
-    ["wk.register"] = {
-        method = "which_key",
-    }, -- method 6 with alias
-}
-
 ---@type table<string, boolean>
 local scannedFiles = {}
 
@@ -181,8 +133,10 @@ local function find_maps_in_file(filePath)
     local tsKemaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dotIndexExpressionQuery =
-        ts.parse_query("lua", build_dot_index_expression_query(keyMapSet))
+    local dotIndexExpressionQuery = ts.parse_query(
+        "lua",
+        build_dot_index_expression_query(config.keyMapSet)
+    )
     for match in
         tsQuery.iter_prepared_matches(
             dotIndexExpressionQuery,
@@ -198,7 +152,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = keyMapSet[parent]
+                local mapDef = config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -266,7 +220,7 @@ local function find_maps_in_file(filePath)
     end
 
     local functionCallQuery =
-        ts.parse_query("lua", build_function_call_query(keyMapSet))
+        ts.parse_query("lua", build_function_call_query(config.keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(
@@ -283,7 +237,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = keyMapSet[parent]
+                local mapDef = config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -352,7 +306,7 @@ local function find_maps_in_file(filePath)
     end
 
     local whichKeyQuery =
-        ts.parse_query("lua", build_which_key_query(keyMapSet))
+        ts.parse_query("lua", build_which_key_query(config.keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)
