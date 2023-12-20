@@ -8,18 +8,23 @@ local tsQuery = require("nvim-treesitter.query")
 
 ---@alias vimModes 'n' | 'x' | 'v' | 'i'
 
----@alias setMethods 'dot_index_expression' | 'expression_list' | 'function_call'
+---@alias whichKeyMethods 'which_key'
+---
+---@alias treeSitterMethods 'dot_index_expression' | 'function_call' | 'expression_list'
+---
+---@alias setMethods whichKeyMethods | treeSitterMethods
 
----@alias complexIndex table<number>
-
----@class keyMapArgs
+---@class TSKeyMapArgs
 ---@field modeIndex number | vimModes
----@field lhsIndex number | complexIndex
----@field rhsIndex number | complexIndex
+---@field lhsIndex number
+---@field rhsIndex number
 ---@field optsIndex number|nil
----@field method setMethods
+---@field method treeSitterMethods
+---
+---@class WhichKeyMapargs
+---@field method whichKeyMethods
 
----@type { [string] : keyMapArgs }
+---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }
 local keyMapSet = {
     ["vim.keymap.set"] = {
         modeIndex = 1,
@@ -59,12 +64,15 @@ local keyMapSet = {
         rhsIndex = 2,
         method = "function_call",
     }, -- for my personal config - used in lsp-setup
+    ["whichkey.register"] = {
+        method = "which_key",
+    }, -- method 6
 }
 
 ---@type table<string, boolean>
 local scannedFiles = {}
 
----@param params keyMapArgs[]
+---@param params TSKeyMapArgs[]
 ---@param method setMethods
 ---@return string
 local function buildArgs(params, method)
@@ -77,7 +85,7 @@ local function buildArgs(params, method)
     return args
 end
 
----@param mapDefs keyMapArgs[]
+---@param mapDefs TSKeyMapArgs[]
 ---@return string
 local function build_dot_index_expression_query(mapDefs)
     local query = [[
@@ -89,7 +97,18 @@ local function build_dot_index_expression_query(mapDefs)
     return string.format(query, buildArgs(mapDefs, "dot_index_expression"))
 end
 
----@param mapDefs keyMapArgs[]
+---@param mapDefs TSKeyMapArgs[]
+---@return string
+local function build_which_key_query(mapDefs)
+    local query = [[
+    (function_call
+        name: (dot_index_expression) @exp (#any-of? @exp %s)
+        (arguments) @args)
+    ]]
+    return string.format(query, buildArgs(mapDefs, "which_key"))
+end
+
+---@param mapDefs TSKeyMapArgs[]
 ---@return string
 local function build_function_call_query(mapDefs)
     local query = [[
@@ -101,7 +120,7 @@ local function build_function_call_query(mapDefs)
 end
 
 ---@param node TSNode
----@param indexData keyMapArgs
+---@param indexData TSKeyMapArgs | WhichKeyMapargs
 ---@param targetData string
 ---@param file_content string
 ---@return string
@@ -323,6 +342,53 @@ local function find_maps_in_file(file_path)
                         end
                         map.mode = table.concat(modes, ", ")
                     end
+                    table.insert(tsKemaps, map)
+                end
+            end
+        end
+    end
+
+    local which_key_query =
+        ts.parse_query("lua", build_which_key_query(keyMapSet))
+
+    for match in
+        tsQuery.iter_prepared_matches(
+            which_key_query,
+            tree,
+            file_content,
+            0,
+            -1
+        )
+    do
+        for expCap, node in pairs(match) do
+            if expCap == "args" then
+                local wkLoaded, which_key = pcall(function()
+                    return require("which-key.mappings")
+                end)
+                if not wkLoaded then
+                    vim.print(
+                        "Which Key Mappings require which-key to be installed"
+                    )
+                    break
+                end
+                local strObj =
+                    vim.treesitter.get_node_text(node.node, file_content)
+                local ok, tableObj = pcall(function()
+                    return loadstring("return " .. strObj)()
+                end)
+                if not ok then
+                    vim.print("Error parsing which-key table")
+                    break
+                end
+                local wkMapping = which_key.parse(tableObj)
+
+                for _, mapping in ipairs(wkMapping) do
+                    local map = {
+                        mode = mapping.mode,
+                        lhs = mapping.prefix,
+                        rhs = mapping.cmd,
+                        from_file = file_path,
+                    }
                     table.insert(tsKemaps, map)
                 end
             end
