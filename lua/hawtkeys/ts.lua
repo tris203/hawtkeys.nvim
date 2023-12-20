@@ -6,23 +6,23 @@ local config = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 
----@alias vimModes 'n' | 'x' | 'v' | 'i'
+---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
----@alias whichKeyMethods 'which_key'
+---@alias WhichKeyMethods 'which_key'
 ---
----@alias treeSitterMethods 'dot_index_expression' | 'function_call' | 'expression_list'
+---@alias TreeSitterMethods 'dot_index_expression' | 'function_call' | 'expression_list'
 ---
----@alias setMethods whichKeyMethods | treeSitterMethods
+---@alias SetMethods WhichKeyMethods | TreeSitterMethods
 
 ---@class TSKeyMapArgs
----@field modeIndex number | vimModes
+---@field modeIndex number | VimModes
 ---@field lhsIndex number
 ---@field rhsIndex number
 ---@field optsIndex number|nil
----@field method treeSitterMethods
+---@field method TreeSitterMethods
 ---
 ---@class WhichKeyMapargs
----@field method whichKeyMethods
+---@field method WhichKeyMethods
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }
 local keyMapSet = {
@@ -73,9 +73,9 @@ local keyMapSet = {
 local scannedFiles = {}
 
 ---@param params TSKeyMapArgs[]
----@param method setMethods
+---@param method SetMethods
 ---@return string
-local function buildArgs(params, method)
+local function build_args(params, method)
     local args = ""
     for name, opts in pairs(params) do
         if opts.method == method then
@@ -94,7 +94,7 @@ local function build_dot_index_expression_query(mapDefs)
         (arguments) @args)
     ]]
 
-    return string.format(query, buildArgs(mapDefs, "dot_index_expression"))
+    return string.format(query, build_args(mapDefs, "dot_index_expression"))
 end
 
 ---@param mapDefs TSKeyMapArgs[]
@@ -105,7 +105,7 @@ local function build_which_key_query(mapDefs)
         name: (dot_index_expression) @exp (#any-of? @exp %s)
         (arguments) @args)
     ]]
-    return string.format(query, buildArgs(mapDefs, "which_key"))
+    return string.format(query, build_args(mapDefs, "which_key"))
 end
 
 ---@param mapDefs TSKeyMapArgs[]
@@ -116,15 +116,15 @@ local function build_function_call_query(mapDefs)
         name: (identifier) @exp (#any-of? @exp %s)
         (arguments) @args)
     ]]
-    return string.format(query, buildArgs(mapDefs, "function_call"))
+    return string.format(query, build_args(mapDefs, "function_call"))
 end
 
 ---@param node TSNode
 ---@param indexData TSKeyMapArgs | WhichKeyMapargs
 ---@param targetData string
----@param file_content string
+---@param fileContent string
 ---@return string
-local function return_field_data(node, indexData, targetData, file_content)
+local function return_field_data(node, indexData, targetData, fileContent)
     ---@param i number
     ---@return number
     local function index_offset(i)
@@ -134,7 +134,7 @@ local function return_field_data(node, indexData, targetData, file_content)
         if type(indexData[targetData]) == "number" then
             local index = index_offset(indexData[targetData])
             ---@diagnostic disable-next-line: param-type-mismatch
-            return vim.treesitter.get_node_text(node:child(index), file_content)
+            return vim.treesitter.get_node_text(node:child(index), fileContent)
         else
             return tostring(indexData[targetData])
         end
@@ -160,31 +160,31 @@ local function find_files(dir)
     return files
 end
 
----@param file_path string
+---@param filePath string
 ---@return table
-local function find_maps_in_file(file_path)
-    if scannedFiles[file_path] then
+local function find_maps_in_file(filePath)
+    if scannedFiles[filePath] then
         print("Already scanned")
         return {}
     end
-    scannedFiles[file_path] = true
+    scannedFiles[filePath] = true
     --if not a lua file, return empty table
-    if not string.match(file_path, "%.lua$") then
+    if not string.match(filePath, "%.lua$") then
         return {}
     end
-    local file_content = Path:new(file_path):read()
-    local parser = vim.treesitter.get_string_parser(file_content, "lua", {}) -- Get the Lua parser
+    local fileContent = Path:new(filePath):read()
+    local parser = vim.treesitter.get_string_parser(fileContent, "lua", {}) -- Get the Lua parser
     local tree = parser:parse()[1]:root()
     local tsKemaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dot_index_expression_query =
+    local dotIndexExpressionQuery =
         ts.parse_query("lua", build_dot_index_expression_query(keyMapSet))
     for match in
         tsQuery.iter_prepared_matches(
-            dot_index_expression_query,
+            dotIndexExpressionQuery,
             tree,
-            file_content,
+            fileContent,
             0,
             -1
         )
@@ -193,7 +193,7 @@ local function find_maps_in_file(file_path)
             if type == "args" then
                 local parent = vim.treesitter.get_node_text(
                     node.node:parent():child(0),
-                    file_content
+                    fileContent
                 )
                 local mapDef = keyMapSet[parent]
                 ---@type string
@@ -201,7 +201,7 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "modeIndex",
-                    file_content
+                    fileContent
                 )
 
                 ---@type string
@@ -209,7 +209,7 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "lhsIndex",
-                    file_content
+                    fileContent
                 )
 
                 ---@type string
@@ -217,27 +217,27 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "rhsIndex",
-                    file_content
+                    fileContent
                 )
-                local buf_local = false
-                local opts_arg = node.node:child(mapDef.optsIndex)
+                local bufLocal = false
+                local optsArg = node.node:child(mapDef.optsIndex)
                 -- the opts table arg of `vim.keymap.set` is optional, only
                 -- do this check if it's present.
-                if opts_arg then
+                if optsArg then
                     -- check for `buffer = <any>`, since we shouldn't show
                     -- buf-local mappings
-                    buf_local = vim.treesitter
-                        .get_node_text(opts_arg, file_content)
+                    bufLocal = vim.treesitter
+                        .get_node_text(optsArg, fileContent)
                         :gsub("[\n\r]", "")
                         :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
                 end
 
-                if not buf_local then
+                if not bufLocal then
                     local map = {
                         mode = mode,
                         lhs = lhs,
                         rhs = rhs,
-                        from_file = file_path,
+                        from_file = filePath,
                     }
 
                     if map.mode:match("^%s*{.*},?.*$") then
@@ -248,7 +248,7 @@ local function find_maps_in_file(file_path)
                         do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
-                                    .get_node_text(child, file_content)
+                                    .get_node_text(child, fileContent)
                                     :gsub("['\"]", "")
                                     :gsub("[\n\r]", "")
                                 table.insert(modes, ty)
@@ -262,14 +262,14 @@ local function find_maps_in_file(file_path)
         end
     end
 
-    local function_call_query =
+    local functionCallQuery =
         ts.parse_query("lua", build_function_call_query(keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(
-            function_call_query,
+            functionCallQuery,
             tree,
-            file_content,
+            fileContent,
             0,
             -1
         )
@@ -278,7 +278,7 @@ local function find_maps_in_file(file_path)
             if expCap == "args" then
                 local parent = vim.treesitter.get_node_text(
                     node.node:parent():child(0),
-                    file_content
+                    fileContent
                 )
                 local mapDef = keyMapSet[parent]
                 ---@type string
@@ -286,7 +286,7 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "modeIndex",
-                    file_content
+                    fileContent
                 )
 
                 ---@type string
@@ -294,7 +294,7 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "lhsIndex",
-                    file_content
+                    fileContent
                 )
 
                 ---@type string
@@ -302,27 +302,27 @@ local function find_maps_in_file(file_path)
                     node.node,
                     mapDef,
                     "rhsIndex",
-                    file_content
+                    fileContent
                 )
-                local buf_local = false
-                local opts_arg = node.node:child(mapDef.optsIndex)
+                local bufLocal = false
+                local optsArg = node.node:child(mapDef.optsIndex)
                 -- the opts table arg of `vim.keymap.set` is optional, only
                 -- do this check if it's present.
-                if opts_arg then
+                if optsArg then
                     -- check for `buffer = <any>`, since we shouldn't show
                     -- buf-local mappings
-                    buf_local = vim.treesitter
-                        .get_node_text(opts_arg, file_content)
+                    bufLocal = vim.treesitter
+                        .get_node_text(optsArg, fileContent)
                         :gsub("[\n\r]", "")
                         :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
                 end
 
-                if not buf_local then
+                if not bufLocal then
                     local map = {
                         mode = mode,
                         lhs = lhs,
                         rhs = rhs,
-                        from_file = file_path,
+                        from_file = filePath,
                     }
 
                     if map.mode:match("^%s*{.*},?.*$") then
@@ -333,7 +333,7 @@ local function find_maps_in_file(file_path)
                         do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
-                                    .get_node_text(child, file_content)
+                                    .get_node_text(child, fileContent)
                                     :gsub("['\"]", "")
                                     :gsub("[\n\r]", "")
                                 vim.print("type: " .. vim.inspect(ty))
@@ -348,17 +348,11 @@ local function find_maps_in_file(file_path)
         end
     end
 
-    local which_key_query =
+    local whichKeyQuery =
         ts.parse_query("lua", build_which_key_query(keyMapSet))
 
     for match in
-        tsQuery.iter_prepared_matches(
-            which_key_query,
-            tree,
-            file_content,
-            0,
-            -1
-        )
+        tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)
     do
         for expCap, node in pairs(match) do
             if expCap == "args" then
@@ -372,7 +366,7 @@ local function find_maps_in_file(file_path)
                     break
                 end
                 local strObj =
-                    vim.treesitter.get_node_text(node.node, file_content)
+                    vim.treesitter.get_node_text(node.node, fileContent)
                 local ok, tableObj = pcall(function()
                     return loadstring("return " .. strObj)()
                 end)
@@ -387,7 +381,7 @@ local function find_maps_in_file(file_path)
                         mode = mapping.mode,
                         lhs = mapping.prefix,
                         rhs = mapping.cmd,
-                        from_file = file_path,
+                        from_file = filePath,
                     }
                     table.insert(tsKemaps, map)
                 end
@@ -402,14 +396,14 @@ end
 local function get_keymaps_from_vim()
     local vimKeymaps = {}
 
-    local vim_keymaps_raw = vim.api.nvim_get_keymap("")
+    local vimKeymapsRaw = vim.api.nvim_get_keymap("")
     print("Collecting vim keymaps")
-    for _, vim_keymap in ipairs(vim_keymaps_raw) do
+    for _, vimKeymap in ipairs(vimKeymapsRaw) do
         table.insert(vimKeymaps, {
-            mode = vim_keymap.mode,
+            mode = vimKeymap.mode,
             -- TODO: leader subsitiution as vim keymaps contain raw leader
-            lhs = vim_keymap.lhs:gsub(config.leader, "<leader>"),
-            rhs = vim_keymap.rhs,
+            lhs = vimKeymap.lhs:gsub(config.leader, "<leader>"),
+            rhs = vimKeymap.rhs,
             from_file = "Vim Defaults",
         })
     end
