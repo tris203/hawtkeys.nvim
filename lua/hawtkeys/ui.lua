@@ -68,7 +68,10 @@ local function highlight_desc(str, combo)
     return newStr
 end
 
+local prompt_extmark
+
 M.search = function(text)
+    text = text or ""
     local results = Hawtkeys.ScoreTable(text)
 
     -- track line count separately because we insert 1-3 lines
@@ -175,13 +178,39 @@ M.show = function()
     --disallow new lines in searchBuf
     vim.keymap.set("i", "<cr>", "<nop>", map_opts)
 
+    local function update_search_hint(text)
+        if text == "" then
+            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
+                id = prompt_extmark,
+                virt_text = { { "Type to search", "Comment" } },
+                virt_text_pos = "inline",
+            })
+        else
+            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
+                id = prompt_extmark,
+                virt_text = { { "", "Comment" } },
+                virt_text_pos = "inline",
+            })
+        end
+    end
+
     -- subscribe to changed text in searchBuf
     vim.api.nvim_buf_attach(searchBuf, false, {
         on_lines = vim.schedule_wrap(function()
-            M.search(vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1])
+            local text = vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1]
+
+            update_search_hint(text)
+
+            if vim.trim(text) == "" or #text < 3 then
+                vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, true, {})
+                return
+            end
+
+            M.search(text)
         end),
     })
 
+    update_search_hint("")
     vim.api.nvim_command("startinsert")
 end
 
