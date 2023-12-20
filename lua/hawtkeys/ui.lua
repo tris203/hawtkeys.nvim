@@ -3,6 +3,8 @@ local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
 local showDuplicates = require("hawtkeys.duplicates")
 
+local ns = vim.api.nvim_create_namespace("hawtkeys")
+
 local ResultWin
 local ResultBuf
 local SearchWin
@@ -192,7 +194,40 @@ M.show_all = function()
         height = height,
         footer = "Current Keybindings",
     })
-    vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, ShowAll.show_all())
+    local all = ShowAll.show_all()
+    local pattern = "%s (%s) - %s"
+    for i, data in ipairs(all) do
+        local filename = data.from_file:gsub(vim.env.HOME, "~")
+        local line = pattern:format(data.lhs, data.mode, filename)
+
+        local offset_mode = #data.lhs + 2
+        local offset_file = offset_mode + #data.mode + 2
+
+        local l2 = data.rhs
+        if l2 == nil or l2 == "" then
+            l2 = "<unknown>"
+        end
+        vim.api.nvim_buf_set_lines(
+            ResultBuf,
+            i == 1 and 0 or -1,
+            -1,
+            false,
+            { line }
+        )
+        -- highlight the filename
+        vim.api.nvim_buf_add_highlight(
+            ResultBuf,
+            -1,
+            "Comment",
+            i - 1,
+            offset_file,
+            -1
+        )
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, ns, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
+    end
 end
 
 M.show_dupes = function()

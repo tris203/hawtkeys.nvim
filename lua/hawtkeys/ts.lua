@@ -61,7 +61,7 @@ local function find_maps_in_file(file_path)
                 end
 
                 if not buf_local then
-                    table.insert(tsKemaps, {
+                    local map = {
                         mode = vim.treesitter
                             .get_node_text(node.node:child(1), file_content)
                             :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
@@ -75,7 +75,26 @@ local function find_maps_in_file(file_path)
                             :gsub("^%s*(['\"])(.*)%1%s*$", "%2")
                             :gsub("[\n\r]", ""),
                         from_file = file_path,
-                    })
+                    }
+
+                    if map.mode:match("^%s*{.*},?.*$") then
+                        local mode = {}
+                        for i, child in
+                            vim.iter(node.node:child(1):iter_children())
+                                :enumerate()
+                        do
+                            if i % 2 == 0 then
+                                local ty = vim.treesitter
+                                    .get_node_text(child, file_content)
+                                    :gsub("['\"]", "")
+                                    :gsub("[\n\r]", "")
+                                vim.print("type: " .. vim.inspect(ty))
+                                table.insert(mode, ty)
+                            end
+                        end
+                        map.mode = table.concat(mode, ", ")
+                    end
+                    table.insert(tsKemaps, map)
                 end
             end
         end
