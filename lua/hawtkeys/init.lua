@@ -4,11 +4,20 @@ local M = {}
 ---@field leader string
 ---@field homerow number
 ---@field powerFingers number[]
----@field keyboardLayout string
+---@field keyboardLayout "qwerty" | "dvorak"
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---
+---@class HawtKeyPartialConfig 
+---@field leader string | nil
+---@field homerow number | nil
+---@field powerFingers number[] | nil
+---@field keyboardLayout "qwerty" | "dvorak" | nil
+---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }---
-local defaultSet = {
+
+M._defaultSet = {
     ["vim.keymap.set"] = {
         modeIndex = 1,
         lhsIndex = 2,
@@ -28,6 +37,13 @@ local defaultSet = {
     }, -- method 6
 }
 
+M.leader = " "
+M.homerow = 2
+M.powerFingers = { 2, 3, 6, 7 }
+M.keyboardLayout = "qwerty"
+M.keyMapSet = M._defaultSet
+
+---@param config HawtKeyPartialConfig
 function M.setup(config)
     config = config or {}
     M.leader = config.leader or " "
@@ -35,7 +51,7 @@ function M.setup(config)
     M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
     M.keyboardLayout = config.keyboardLayout or "qwerty"
     M.keyMapSet =
-        vim.table.tbl_deep_extend("force", defaultSet, config.customMaps or {})
+        vim.tbl_extend("force", M._defaultSet, config.customMaps or {})
 end
 
 vim.api.nvim_create_user_command(

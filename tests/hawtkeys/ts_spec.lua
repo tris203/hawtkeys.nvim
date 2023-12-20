@@ -12,7 +12,7 @@ end)
 describe("Treesitter can extract keymaps", function()
 before_each(function()
     require("plenary.reload").reload_module("hawtkeys")
-        hawtkeys.setup()
+        hawtkeys.setup({})
 end)
     it("extract vim.api.nvim_set_keymap()", function()
         local keymap = ts.find_maps_in_file(
