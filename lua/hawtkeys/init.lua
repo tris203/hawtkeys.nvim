@@ -7,7 +7,7 @@ local M = {}
 ---@field keyboardLayout "qwerty" | "dvorak"
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
 ---
----@class HawtKeyPartialConfig 
+---@class HawtKeyPartialConfig
 ---@field leader string | nil
 ---@field homerow number | nil
 ---@field powerFingers number[] | nil
