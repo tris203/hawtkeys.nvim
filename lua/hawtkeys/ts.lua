@@ -67,6 +67,9 @@ local keyMapSet = {
     ["whichkey.register"] = {
         method = "which_key",
     }, -- method 6
+    ["wk.register"] = {
+        method = "which_key",
+    }, -- method 6 with alias
 }
 
 ---@type table<string, boolean>
