@@ -5,7 +5,6 @@ local utils = require("hawtkeys.utils")
 local config = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
-local keyMapSet = config.keyMapSet
 
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
@@ -135,7 +134,7 @@ local function find_maps_in_file(filePath)
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
     local dotIndexExpressionQuery =
-        ts.parse_query("lua", build_dot_index_expression_query(keyMapSet))
+        ts.parse_query("lua", build_dot_index_expression_query(config.keyMapSet))
     for match in
         tsQuery.iter_prepared_matches(
             dotIndexExpressionQuery,
@@ -151,7 +150,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = keyMapSet[parent]
+                local mapDef = config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -219,7 +218,7 @@ local function find_maps_in_file(filePath)
     end
 
     local functionCallQuery =
-        ts.parse_query("lua", build_function_call_query(keyMapSet))
+        ts.parse_query("lua", build_function_call_query(config.keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(
@@ -236,7 +235,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = keyMapSet[parent]
+                local mapDef = config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -305,7 +304,7 @@ local function find_maps_in_file(filePath)
     end
 
     local whichKeyQuery =
-        ts.parse_query("lua", build_which_key_query(keyMapSet))
+        ts.parse_query("lua", build_which_key_query(config.keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)

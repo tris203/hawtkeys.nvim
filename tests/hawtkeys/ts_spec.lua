@@ -52,7 +52,6 @@ end)
                     },
                 },
             })
-        print(vim.inspect(hawtkeys.keyMapSet))
             local keymap = ts.find_maps_in_file(
                 "tests/hawtkeys/example_configs/aliased_vim.api.nvim_set_keymap.lua"
             )

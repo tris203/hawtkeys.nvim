@@ -1,17 +1,19 @@
 local M = {}
 
+---@alias SupportedKeyboardLayouts "qwerty" | "dvorak"
+
 ---@class HawtKeyConfig
 ---@field leader string
 ---@field homerow number
 ---@field powerFingers number[]
----@field keyboardLayout "qwerty" | "dvorak"
+---@field keyboardLayout SupportedKeyboardLayouts
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
----
+
 ---@class HawtKeyPartialConfig
 ---@field leader string | nil
 ---@field homerow number | nil
 ---@field powerFingers number[] | nil
----@field keyboardLayout "qwerty" | "dvorak" | nil
+---@field keyboardLayout SupportedKeyboardLayouts | nil
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
 ---
 
@@ -36,12 +38,6 @@ M._defaultSet = {
         method = "which_key",
     }, -- method 6
 }
-
-M.leader = " "
-M.homerow = 2
-M.powerFingers = { 2, 3, 6, 7 }
-M.keyboardLayout = "qwerty"
-M.keyMapSet = M._defaultSet
 
 ---@param config HawtKeyPartialConfig
 function M.setup(config)
