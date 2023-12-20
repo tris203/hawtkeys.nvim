@@ -68,7 +68,6 @@ describe("Treesitter can extract keymaps", function()
         local keymap = ts.find_maps_in_file(
             "tests/hawtkeys/example_configs/function_vim.api.nvim_set_keymap.lua"
         )
-        print(vim.inspect(keymap))
         -- TODO: currently index 2, as the first index is the function itself
         -- This needs to be fixed
         eq("n", keymap[2].mode)

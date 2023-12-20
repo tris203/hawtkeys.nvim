@@ -19,7 +19,7 @@ local M = {}
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }---
 
-M._defaultSet = {
+local _defaultSet = {
     ["vim.keymap.set"] = {
         modeIndex = 1,
         lhsIndex = 2,
@@ -46,8 +46,7 @@ function M.setup(config)
     M.homerow = config.homerow or 2
     M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
     M.keyboardLayout = config.keyboardLayout or "qwerty"
-    M.keyMapSet =
-        vim.tbl_extend("force", M._defaultSet, config.customMaps or {})
+    M.keyMapSet = vim.tbl_extend("force", _defaultSet, config.customMaps or {})
 end
 
 vim.api.nvim_create_user_command(
