@@ -223,7 +223,7 @@ local function find_maps_in_file(file_path)
                 end
 
                 if not buf_local then
-                    local map =  {
+                    local map = {
                         mode = mode,
                         lhs = lhs,
                         rhs = rhs,
@@ -231,7 +231,7 @@ local function find_maps_in_file(file_path)
                     }
 
                     if map.mode:match("^%s*{.*},?.*$") then
-                        local mode = {}
+                        local modes = {}
                         for i, child in
                             vim.iter(node.node:child(1):iter_children())
                                 :enumerate()
@@ -241,11 +241,10 @@ local function find_maps_in_file(file_path)
                                     .get_node_text(child, file_content)
                                     :gsub("['\"]", "")
                                     :gsub("[\n\r]", "")
-                                vim.print("type: " .. vim.inspect(ty))
-                                table.insert(mode, ty)
+                                table.insert(modes, ty)
                             end
                         end
-                        map.mode = table.concat(mode, ", ")
+                        map.mode = table.concat(modes, ", ")
                     end
                     table.insert(tsKemaps, map)
                 end
@@ -317,7 +316,7 @@ local function find_maps_in_file(file_path)
                     }
 
                     if map.mode:match("^%s*{.*},?.*$") then
-                        local mode = {}
+                        local modes = {}
                         for i, child in
                             vim.iter(node.node:child(1):iter_children())
                                 :enumerate()
@@ -328,10 +327,10 @@ local function find_maps_in_file(file_path)
                                     :gsub("['\"]", "")
                                     :gsub("[\n\r]", "")
                                 vim.print("type: " .. vim.inspect(ty))
-                                table.insert(mode, ty)
+                                table.insert(modes, ty)
                             end
                         end
-                        map.mode = table.concat(mode, ", ")
+                        map.mode = table.concat(modes, ", ")
                     end
                     table.insert(tsKemaps, map)
                 end
