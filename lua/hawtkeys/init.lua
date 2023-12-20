@@ -34,7 +34,7 @@ function M.setup(config)
     M.homerow = config.homerow or 2
     M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
     M.keyboardLayout = config.keyboardLayout or "qwerty"
-    M.keyMapSet = defaultSet
+    M.keyMapSet = vim.table.tbl_deep_extend("force", defaultSet, config.customMaps or {})
 end
 
 vim.api.nvim_create_user_command(
