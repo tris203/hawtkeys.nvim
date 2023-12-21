@@ -2,6 +2,8 @@ local hawtkeys = require("hawtkeys")
 local ts = require("hawtkeys.ts")
 ---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
+---@diagnostic disable-next-line: undefined-field
+local falsy = assert.falsy
 
 describe("Treesitter can extract keymaps", function()
     before_each(function()
@@ -58,7 +60,7 @@ describe("Treesitter can extract keymaps", function()
         hawtkeys.setup({
             customMaps = {
                 ["normalMap"] = {
-                    modeIndex = 'n',
+                    modeIndex = "n",
                     lhsIndex = 1,
                     rhsIndex = 2,
                     method = "function_call",
@@ -75,5 +77,21 @@ describe("Treesitter can extract keymaps", function()
         eq(':echo "hello"<CR>', keymap[2].rhs)
     end)
 
-    
+    it("Keymaps containing blacklisted characters are ignored", function()
+        local numberOfExamples = 2
+        local beforeCount = #vim.api.nvim_get_keymap("n")
+        require("tests.hawtkeys.example_configs.blacklistCharacter_keymap")
+        local afterCount = #vim.api.nvim_get_keymap("n")
+        eq(numberOfExamples, afterCount - beforeCount)
+        local keymap = ts.get_keymaps_from_vim()
+        local blacklist = hawtkeys.config.lhsBlacklist
+        for _, map in pairs(keymap) do
+            for _, blacklistedItem in pairs(blacklist) do
+                falsy(string.find(map.lhs, blacklistedItem))
+            end
+        end
+        require("tests.hawtkeys.example_configs.blacklistCharacter_keymap").reset()
+        local finalCount = #vim.api.nvim_get_keymap("n")
+        eq(beforeCount, finalCount)
+    end)
 end)

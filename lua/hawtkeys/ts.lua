@@ -356,20 +356,29 @@ local function get_keymaps_from_vim()
     local vimKeymaps = {}
 
     local vimKeymapsRaw = vim.api.nvim_get_keymap("")
-    print("Collecting vim keymaps")
-
     for _, vimKeymap in ipairs(vimKeymapsRaw) do
-        local rhs = vimKeymap.rhs
-        if rhs == nil or rhs == "" then
-            rhs = vimKeymap.desc
+        local count = vim.tbl_count(hawtkeys.config.lhsBlacklist)
+        for _, blacklist in ipairs(hawtkeys.config.lhsBlacklist) do
+            if not vimKeymap.lhs:lower():match(blacklist) then
+                count = count - 1
+                if count == 0 then
+                    local rhs = vimKeymap.rhs
+                    if rhs == nil or rhs == "" then
+                        rhs = vimKeymap.desc
+                    end
+                    table.insert(vimKeymaps, {
+                        mode = vimKeymap.mode,
+                        -- TODO: leader subsitiution as vim keymaps contain raw leader
+                        lhs = vimKeymap.lhs:gsub(
+                            hawtkeys.config.leader,
+                            "<leader>"
+                        ),
+                        rhs = rhs,
+                        from_file = "Vim Defaults",
+                    })
+                end
+            end
         end
-        table.insert(vimKeymaps, {
-            mode = vimKeymap.mode,
-            -- TODO: leader subsitiution as vim keymaps contain raw leader
-            rhs = rhs,
-            lhs = vimKeymap.lhs:gsub(hawtkeys.config.leader, "<leader>"),
-            from_file = "Vim Defaults",
-        })
     end
     return vimKeymaps
 end
@@ -409,5 +418,6 @@ M.reset_scanned_files = function()
 end
 
 M.find_maps_in_file = find_maps_in_file
+M.get_keymaps_from_vim = get_keymaps_from_vim
 
 return M
