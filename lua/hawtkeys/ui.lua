@@ -1,13 +1,15 @@
 local M = {}
+
 local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
 local showDuplicates = require("hawtkeys.duplicates")
 
-local ns = vim.api.nvim_create_namespace("hawtkeys")
+local Namespace = vim.api.nvim_create_namespace("hawtkeys")
 
 local ResultWin
 local ResultBuf
 local SearchWin
+local SearchBuf
 
 local prompt_extmark
 
@@ -17,21 +19,25 @@ local function create_win(enter, opts)
     opts.win_options = nil
 
     local buf = vim.api.nvim_create_buf(false, true)
+    vim.bo[buf].bufhidden = "wipe"
 
-    local win = vim.api.nvim_open_win(
-        buf,
-        enter,
-        vim.tbl_deep_extend("keep", opts, {
-            relative = "editor",
-            anchor = "NW",
-            border = "single",
-            noautocmd = true,
-            col = (vim.o.columns / 2) - (opts.width / 2),
-            row = (vim.o.lines / 2) - (opts.height / 2),
-            footer_pos = opts.footer and "center",
-            title_pos = opts.title and "center",
-        })
-    )
+    local config = vim.tbl_deep_extend("keep", opts, {
+        relative = "editor",
+        anchor = "NW",
+        border = "single",
+        noautocmd = true,
+        col = (vim.o.columns / 2) - (opts.width / 2),
+        row = (vim.o.lines / 2) - (opts.height / 2),
+        footer_pos = opts.footer and "center",
+        title_pos = opts.title and "center",
+    })
+
+    if vim.fn.has("nvim-0.10") == 0 then
+        config.footer = nil
+        config.footer_pos = nil
+    end
+
+    local win = vim.api.nvim_open_win(buf, enter, config)
 
     vim.api.nvim_create_autocmd("BufLeave", {
         buffer = buf,
@@ -188,8 +194,7 @@ M.show = function()
             winhl = "Normal:NormalFloatNC",
         },
     })
-    local searchBuf
-    SearchWin, searchBuf = create_win(true, {
+    SearchWin, SearchBuf = create_win(true, {
         width = width,
         height = 1,
         row = (vim.o.lines / 2) - (height / 2) - 2,
@@ -203,31 +208,33 @@ M.show = function()
         },
     })
 
-    local map_opts = { noremap = true, silent = true, buffer = searchBuf }
+    local map_opts = { noremap = true, silent = true, buffer = SearchBuf }
     vim.keymap.set({ "n", "i" }, "<esc>", M.hide, map_opts)
     --disallow new lines in searchBuf
     vim.keymap.set("i", "<cr>", "<nop>", map_opts)
 
     local function update_search_hint(text)
         if text == "" then
-            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
-                id = prompt_extmark,
-                virt_text = { { "Type to search", "Comment" } },
-                virt_text_pos = "inline",
-            })
+            prompt_extmark =
+                vim.api.nvim_buf_set_extmark(SearchBuf, Namespace, 0, 0, {
+                    id = prompt_extmark,
+                    virt_text = { { "Type to search", "Comment" } },
+                    virt_text_pos = "overlay",
+                })
         else
-            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
-                id = prompt_extmark,
-                virt_text = { { "", "Comment" } },
-                virt_text_pos = "inline",
-            })
+            prompt_extmark =
+                vim.api.nvim_buf_set_extmark(SearchBuf, Namespace, 0, 0, {
+                    id = prompt_extmark,
+                    virt_text = { { "", "Comment" } },
+                    virt_text_pos = "overlay",
+                })
         end
     end
 
     -- subscribe to changed text in searchBuf
-    vim.api.nvim_buf_attach(searchBuf, false, {
+    vim.api.nvim_buf_attach(SearchBuf, false, {
         on_lines = vim.schedule_wrap(function()
-            local text = vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1]
+            local text = vim.api.nvim_buf_get_lines(SearchBuf, 0, 1, false)[1]
 
             update_search_hint(text)
 
@@ -241,7 +248,7 @@ M.show = function()
     })
 
     update_search_hint("")
-    vim.api.nvim_command("startinsert")
+    vim.api.nvim_feedkeys("i", "n", false)
 end
 
 M.show_all = function()
@@ -283,7 +290,7 @@ M.show_all = function()
             -1
         )
         -- mapping rhs as extmark so the cursor skips over it
-        vim.api.nvim_buf_set_extmark(ResultBuf, ns, i - 1, 0, {
+        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
             virt_lines = { { { l2, "Function" } } },
         })
     end
@@ -319,5 +326,37 @@ M.hide = function()
     ResultWin = nil
     vim.api.nvim_command("stopinsert")
 end
+
+-- This is for testing purposes, since we need to
+-- access these variables from outside the module
+-- but we don't want to expose them to the user
+local state = {
+    ResultWin = function()
+        return ResultWin
+    end,
+    ResultBuf = function()
+        return ResultBuf
+    end,
+    SearchWin = function()
+        return SearchWin
+    end,
+    SearchBuf = function()
+        return SearchBuf
+    end,
+    Namespace = function()
+        return Namespace
+    end,
+    prompt_extmark = function()
+        return prompt_extmark
+    end,
+}
+
+setmetatable(M, {
+    __index = function(_, k)
+        if state[k] then
+            return state[k]()
+        end
+    end,
+})
 
 return M

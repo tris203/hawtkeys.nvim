@@ -71,6 +71,7 @@ describe("set up function", function()
     it("User commands should be available after setup", function()
         local commandspresetup = vim.api.nvim_get_commands({})
         hawtkeys.setup({})
+
         local commandsPostSetup = vim.api.nvim_get_commands({})
         -- Check that the commands are not present before setup
         for command, _ in ipairs(userCommands) do
