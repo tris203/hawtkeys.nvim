@@ -1,4 +1,4 @@
-local config = require("hawtkeys")
+local hawtkeys = require("hawtkeys")
 local keyboardLayouts = require("hawtkeys.keyboards")
 local tsSearch = require("hawtkeys.ts")
 local utils = require("hawtkeys.utils")
@@ -51,24 +51,24 @@ local function key_score(key1, key2, str, layout)
         local sameFingerPenalty = (key1Data.finger == key2Data.finger) and 1
             or 0
         local homerowBonus = (
-            key1Data.row == config.homerow
-            and key2Data.row == config.homerow
+            key1Data.row == hawtkeys.config.homerow
+            and key2Data.row == hawtkeys.config.homerow
         )
                 and 1
             or 0
         local powerFinger1Bonus = (
-            key1Data.finger == config.powerFingers[1]
-            or key1Data.finger == config.powerFingers[2]
-            or key1Data.finger == config.powerFingers[3]
-            or key1Data.finger == config.powerFingers[4]
+            key1Data.finger == hawtkeys.config.powerFingers[1]
+            or key1Data.finger == hawtkeys.config.powerFingers[2]
+            or key1Data.finger == hawtkeys.config.powerFingers[3]
+            or key1Data.finger == hawtkeys.config.powerFingers[4]
         )
                 and 1
             or 0
         local powerFinger2Bonus = (
-            key2Data.finger == config.powerFingers[1]
-            or key2Data.finger == config.powerFingers[2]
-            or key2Data.finger == config.powerFingers[3]
-            or key2Data.finger == config.powerFingers[4]
+            key2Data.finger == hawtkeys.config.powerFingers[1]
+            or key2Data.finger == hawtkeys.config.powerFingers[2]
+            or key2Data.finger == hawtkeys.config.powerFingers[3]
+            or key2Data.finger == hawtkeys.config.powerFingers[4]
         )
                 and 1
             or 0
@@ -91,7 +91,7 @@ end
 ---@param str string
 ---@return table
 local function generate_combos(str)
-    str = str:gsub(config.leader, "")
+    str = str:gsub(hawtkeys.config.leader, "")
     local pairs = {}
     local len = #str
     for i = 1, len - 1 do
@@ -112,7 +112,7 @@ local function find_matches(str)
 
     for _, combo in ipairs(combinations) do
         local a, b = combo:sub(1, 1), combo:sub(2, 2)
-        local score = key_score(a, b, str, config.keyboardLayout)
+        local score = key_score(a, b, str, hawtkeys.config.keyboardLayout)
         scores[combo] = score
     end
 
