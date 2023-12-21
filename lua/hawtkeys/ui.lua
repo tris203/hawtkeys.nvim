@@ -3,9 +3,13 @@ local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
 local showDuplicates = require("hawtkeys.duplicates")
 
+local ns = vim.api.nvim_create_namespace("hawtkeys")
+
 local ResultWin
 local ResultBuf
 local SearchWin
+
+local prompt_extmark
 
 local function create_win(enter, opts)
     opts = opts or {}
@@ -43,30 +47,15 @@ local function create_win(enter, opts)
     return win, buf
 end
 
----@param str string
----@param combo string
----@return string
-local function highlight_desc(str, combo)
-    -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
-    local newStr = str:lower()
-    local marked = {} -- Keep track of characters already marked
-    for i = 1, #combo do
-        local char = combo:sub(i, i)
-        local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
-        pos = newStr:find(char, pos, true) or 0
-        if pos then
-            newStr = newStr:sub(1, pos - 1)
-                .. "["
-                .. char
-                .. "]"
-                .. newStr:sub(pos + 1)
-            marked[char] = pos + 2 -- Mark this character's position
-        end
-    end
-    return newStr
-end
+local search_threshold = {
+    GREAT = 6,
+    GOOD = 3,
+    OK = 1,
+    BAD = 0,
+}
 
 M.search = function(text)
+    text = text or ""
     local results = Hawtkeys.ScoreTable(text)
 
     -- track line count separately because we insert 1-3 lines
@@ -75,15 +64,14 @@ M.search = function(text)
     for i = 1, #results do
         local data = results[i]
         local lines = {}
-        table.insert(
-            lines,
-            "Key: "
-                .. highlight_desc(text, data.combo)
-                .. "<leader>"
-                .. data.combo
-                .. " - Hawt Score: "
-                .. data.score
+        local line = string.format(
+            "Key: %s <leader>%s - Hawt Score: %d",
+            text,
+            data.combo,
+            data.score
         )
+        table.insert(lines, line)
+
         line_count = line_count + 1
         local already_mapped = false
         if
@@ -133,6 +121,52 @@ M.search = function(text)
                 0,
                 -1
             )
+        else
+            local newStr = text:lower()
+            local marked = {} -- Keep track of characters already marked
+            for idx = 1, #data.combo do
+                local char = data.combo:sub(idx, idx)
+                local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
+                pos = newStr:find(char, pos, true) or 0
+                if marked[char] and marked[char] == pos then
+                    pos = newStr:find(char, pos + 1, true) or 0
+                end
+                if pos then
+                    newStr = newStr:sub(1, pos - 1)
+                        .. char
+                        .. newStr:sub(pos + 1)
+                    local hl_col = pos + 5
+                    vim.api.nvim_buf_add_highlight(
+                        ResultBuf,
+                        -1,
+                        "Function",
+                        line_count - (already_mapped and 3 or 1),
+                        hl_col - 1,
+                        hl_col
+                    )
+                    marked[char] = pos -- Mark this character's position
+                end
+            end
+
+            local score_offset = #line - #tostring(data.score)
+            local score_hl
+            if data.score >= search_threshold.GREAT then
+                score_hl = "HawtkeysMatchGreat"
+            elseif data.score >= search_threshold.GOOD then
+                score_hl = "HawtkeysMatchGood"
+            elseif data.score >= search_threshold.OK then
+                score_hl = "HawtkeysMatchOk"
+            else
+                score_hl = "HawtkeysMatchBad"
+            end
+            vim.api.nvim_buf_add_highlight(
+                ResultBuf,
+                -1,
+                score_hl,
+                line_count - (already_mapped and 3 or 1),
+                score_offset,
+                #line
+            )
         end
     end
 end
@@ -147,11 +181,11 @@ M.show = function()
         -- vertical topleft and topright to look like
         -- these are one window
         border = { "│", "─", "│", "│", "┘", "─", "└", "│" },
-        zindex = 101,
         footer = "Suggested Keybindings",
         win_options = {
             number = true,
             relativenumber = false,
+            winhl = "Normal:NormalFloatNC",
         },
     })
     local searchBuf
@@ -161,6 +195,7 @@ M.show = function()
         row = (vim.o.lines / 2) - (height / 2) - 2,
         style = "minimal",
         title = "Enter Command Description",
+        border = { "┌", "─", "┐", "│", "┤", "─", "├", "│" },
         win_options = {
             number = false,
             relativenumber = false,
@@ -173,13 +208,39 @@ M.show = function()
     --disallow new lines in searchBuf
     vim.keymap.set("i", "<cr>", "<nop>", map_opts)
 
+    local function update_search_hint(text)
+        if text == "" then
+            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
+                id = prompt_extmark,
+                virt_text = { { "Type to search", "Comment" } },
+                virt_text_pos = "inline",
+            })
+        else
+            prompt_extmark = vim.api.nvim_buf_set_extmark(searchBuf, ns, 0, 0, {
+                id = prompt_extmark,
+                virt_text = { { "", "Comment" } },
+                virt_text_pos = "inline",
+            })
+        end
+    end
+
     -- subscribe to changed text in searchBuf
     vim.api.nvim_buf_attach(searchBuf, false, {
         on_lines = vim.schedule_wrap(function()
-            M.search(vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1])
+            local text = vim.api.nvim_buf_get_lines(searchBuf, 0, 1, false)[1]
+
+            update_search_hint(text)
+
+            if vim.trim(text) == "" or #text < 3 then
+                vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, true, {})
+                return
+            end
+
+            M.search(text)
         end),
     })
 
+    update_search_hint("")
     vim.api.nvim_command("startinsert")
 end
 
@@ -192,7 +253,40 @@ M.show_all = function()
         height = height,
         footer = "Current Keybindings",
     })
-    vim.api.nvim_buf_set_lines(ResultBuf, 0, -1, false, ShowAll.show_all())
+    local all = ShowAll.show_all()
+    local pattern = "%s (%s) - %s"
+    for i, data in ipairs(all) do
+        local filename = data.from_file:gsub(vim.env.HOME, "~")
+        local line = pattern:format(data.lhs, data.mode, filename)
+
+        local offset_mode = #data.lhs + 2
+        local offset_file = offset_mode + #data.mode + 2
+
+        local l2 = data.rhs
+        if l2 == nil or l2 == "" then
+            l2 = "<unknown>"
+        end
+        vim.api.nvim_buf_set_lines(
+            ResultBuf,
+            i == 1 and 0 or -1,
+            -1,
+            false,
+            { line }
+        )
+        -- highlight the filename
+        vim.api.nvim_buf_add_highlight(
+            ResultBuf,
+            -1,
+            "Comment",
+            i - 1,
+            offset_file,
+            -1
+        )
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, ns, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
+    end
 end
 
 M.show_dupes = function()
