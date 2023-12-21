@@ -91,7 +91,7 @@ M.search = function(text)
                 lines,
                 "Already mapped: " .. tostring(data.already_mapped.rhs)
             )
-            table.insert(lines, "In File" .. data.already_mapped.from_file)
+            table.insert(lines, "In File " .. data.already_mapped.from_file)
         end
         vim.api.nvim_buf_set_lines(
             ResultBuf,
