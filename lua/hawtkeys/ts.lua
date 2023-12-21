@@ -362,6 +362,10 @@ local function get_keymaps_from_vim()
             if not vimKeymap.lhs:lower():match(blacklist) then
                 count = count - 1
                 if count == 0 then
+                    local rhs = vimKeymap.rhs
+                    if rhs == nil or rhs == "" then
+                        rhs = vimKeymap.desc
+                    end
                     table.insert(vimKeymaps, {
                         mode = vimKeymap.mode,
                         -- TODO: leader subsitiution as vim keymaps contain raw leader
@@ -369,7 +373,7 @@ local function get_keymaps_from_vim()
                             hawtkeys.config.leader,
                             "<leader>"
                         ),
-                        rhs = vimKeymap.rhs,
+                        rhs = rhs,
                         from_file = "Vim Defaults",
                     })
                 end
