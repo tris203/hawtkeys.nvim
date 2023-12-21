@@ -70,7 +70,7 @@ function M.find_duplicates(keymaps)
     for _, v in pairs(keymaps) do
         for _, v2 in pairs(keymaps) do
             if v.lhs == v2.lhs and v.mode == v2.mode and v.rhs ~= v2.rhs then
-                duplicates[v.lhs] = { { v }, { v2 } }
+                duplicates[v.lhs] = { v, v2 }
             end
         end
     end
