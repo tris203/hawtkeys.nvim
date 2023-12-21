@@ -395,18 +395,31 @@ function M.get_all_keymaps()
         return returnKeymaps
     end ]]
     local keymaps = {}
-    local paths = get_runtime_path()
-    for _, path in ipairs(paths) do
-        if string.match(path, "%.config") then
-            local files = find_files(path)
-            for _, file in ipairs(files) do
-                local file_keymaps = find_maps_in_file(file)
-                for _, keymap in ipairs(file_keymaps) do
-                    table.insert(keymaps, keymap)
+
+    if M._testing then
+        local files =
+            find_files(vim.loop.cwd() .. "/tests/hawtkeys/example_configs")
+        for _, file in ipairs(files) do
+            local file_keymaps = find_maps_in_file(file)
+            for _, keymap in ipairs(file_keymaps) do
+                table.insert(keymaps, keymap)
+            end
+        end
+    else
+        local paths = get_runtime_path()
+        for _, path in ipairs(paths) do
+            if string.match(path, "%.config") then
+                local files = find_files(path)
+                for _, file in ipairs(files) do
+                    local file_keymaps = find_maps_in_file(file)
+                    for _, keymap in ipairs(file_keymaps) do
+                        table.insert(keymaps, keymap)
+                    end
                 end
             end
         end
     end
+
     local vimKeymaps = get_keymaps_from_vim()
     returnKeymaps = utils.merge_tables(keymaps, vimKeymaps)
     scannedFiles = {}
