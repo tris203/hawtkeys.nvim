@@ -71,7 +71,6 @@ function M.find_duplicates(keymaps)
         for _, v2 in pairs(keymaps) do
             if v.lhs == v2.lhs and v.mode == v2.mode and v.rhs ~= v2.rhs then
                 duplicates[v.lhs] = { { v }, { v2 } }
-                -- table.insert(duplicates, { [v.lhs] = { v }, { v2 } })
             end
         end
     end
