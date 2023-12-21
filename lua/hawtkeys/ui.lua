@@ -9,6 +9,8 @@ local ResultWin
 local ResultBuf
 local SearchWin
 
+local prompt_extmark
+
 local function create_win(enter, opts)
     opts = opts or {}
     local wo = opts.win_options or {}
@@ -45,30 +47,12 @@ local function create_win(enter, opts)
     return win, buf
 end
 
----@param str string
----@param combo string
----@return string
-local function highlight_desc(str, combo)
-    -- returns str with the first unmarked occurrence of each letter of combo surrounded by []
-    local newStr = str:lower()
-    local marked = {} -- Keep track of characters already marked
-    for i = 1, #combo do
-        local char = combo:sub(i, i)
-        local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
-        pos = newStr:find(char, pos, true) or 0
-        if pos then
-            newStr = newStr:sub(1, pos - 1)
-                .. "["
-                .. char
-                .. "]"
-                .. newStr:sub(pos + 1)
-            marked[char] = pos + 2 -- Mark this character's position
-        end
-    end
-    return newStr
-end
-
-local prompt_extmark
+local search_threshold = {
+    GREAT = 6,
+    GOOD = 3,
+    OK = 1,
+    BAD = 0,
+}
 
 M.search = function(text)
     text = text or ""
@@ -80,15 +64,14 @@ M.search = function(text)
     for i = 1, #results do
         local data = results[i]
         local lines = {}
-        table.insert(
-            lines,
-            "Key: "
-                .. highlight_desc(text, data.combo)
-                .. "<leader>"
-                .. data.combo
-                .. " - Hawt Score: "
-                .. data.score
+        local line = string.format(
+            "Key: %s <leader>%s - Hawt Score: %d",
+            text,
+            data.combo,
+            data.score
         )
+        table.insert(lines, line)
+
         line_count = line_count + 1
         local already_mapped = false
         if
@@ -137,6 +120,52 @@ M.search = function(text)
                 line_count - 1,
                 0,
                 -1
+            )
+        else
+            local newStr = text:lower()
+            local marked = {} -- Keep track of characters already marked
+            for idx = 1, #data.combo do
+                local char = data.combo:sub(idx, idx)
+                local pos = marked[char] or 1 -- Start searching from the last marked position or from the beginning
+                pos = newStr:find(char, pos, true) or 0
+                if marked[char] and marked[char] == pos then
+                    pos = newStr:find(char, pos + 1, true) or 0
+                end
+                if pos then
+                    newStr = newStr:sub(1, pos - 1)
+                        .. char
+                        .. newStr:sub(pos + 1)
+                    local hl_col = pos + 5
+                    vim.api.nvim_buf_add_highlight(
+                        ResultBuf,
+                        -1,
+                        "Function",
+                        line_count - (already_mapped and 3 or 1),
+                        hl_col - 1,
+                        hl_col
+                    )
+                    marked[char] = pos -- Mark this character's position
+                end
+            end
+
+            local score_offset = #line - #tostring(data.score)
+            local score_hl
+            if data.score >= search_threshold.GREAT then
+                score_hl = "HawtkeysMatchGreat"
+            elseif data.score >= search_threshold.GOOD then
+                score_hl = "HawtkeysMatchGood"
+            elseif data.score >= search_threshold.OK then
+                score_hl = "HawtkeysMatchOk"
+            else
+                score_hl = "HawtkeysMatchBad"
+            end
+            vim.api.nvim_buf_add_highlight(
+                ResultBuf,
+                -1,
+                score_hl,
+                line_count - (already_mapped and 3 or 1),
+                score_offset,
+                #line
             )
         end
     end
