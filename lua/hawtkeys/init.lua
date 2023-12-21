@@ -46,55 +46,49 @@ local _defaultSet = {
     }, -- method 6
 }
 
+M.defaultConfig = {
+    leader = " ",
+    homerow = 2,
+    powerFingers = { 2, 3, 6, 7 },
+    keyboardLayout = "qwerty",
+    keyMapSet = _defaultSet,
+    highlights = {
+        HawtkeysMatchGreat = { link = "DiagnosticOk", underline = true },
+        HawtkeysMatchGood = { link = "DiagnosticOk" },
+        HawtkeysMatchOk = { link = "DiagnosticWarn" },
+        HawtkeysMatchBad = { link = "DiagnosticError" },
+    },
+}
+
 ---@param config HawtKeyPartialConfig
 function M.setup(config)
-    config = config or {}
-    M.leader = config.leader or " "
-    M.homerow = config.homerow or 2
-    M.powerFingers = config.powerFingers or { 2, 3, 6, 7 }
-    M.keyboardLayout = config.keyboardLayout or "qwerty"
-    M.keyMapSet = vim.tbl_extend("force", _defaultSet, config.customMaps or {})
+    config = vim.tbl_deep_extend("force", M.defaultConfig, config or {})
 
-    local default_match_great
-    if not config.highlights or not config.highlights.HawtkeysMatchGreat then
-        default_match_great =
-            vim.api.nvim_get_hl(0, { name = "DiagnosticOk", link = false })
-        default_match_great.underline = true
+    config.keyMapSet =
+        vim.tbl_deep_extend("force", _defaultSet, config.customMaps or {})
+    config.customMaps = nil
+    local appliedHighlights = {}
+    for name, props in pairs(config.highlights) do
+        local styleConfig =
+            vim.api.nvim_get_hl(0, { name = props.link, link = false })
+        for k, v in pairs(props) do
+            if k == "link" then
+                break
+            end
+            styleConfig[k] = v
+        end
+        appliedHighlights[name] = styleConfig
     end
-    M.highlights = vim.tbl_extend("keep", config.highlights or {}, {
-        HawtkeysMatchGreat = default_match_great,
-        HawtkeysMatchGood = {
-            link = "DiagnosticOk",
-        },
-        HawtkeysMatchOk = {
-            link = "DiagnosticWarn",
-        },
-        HawtkeysMatchBad = {
-            link = "DiagnosticError",
-        },
-    })
 
-    for name, hl in pairs(M.highlights) do
+    M.config = config
+
+    for name, hl in pairs(appliedHighlights) do
         vim.api.nvim_set_hl(0, name, hl)
     end
 
     vim.api.nvim_create_autocmd("ColorScheme", {
         callback = function()
-            if default_match_great then
-                for k, v in
-                    pairs(
-                        vim.api.nvim_get_hl(
-                            0,
-                            { name = "DiagnosticOk", link = false }
-                        )
-                    )
-                do
-                    default_match_great[k] = v
-                end
-                default_match_great.underline = true
-            end
-
-            for name, hl in pairs(M.highlights) do
+            for name, hl in pairs(appliedHighlights) do
                 vim.api.nvim_set_hl(0, name, hl)
             end
         end,

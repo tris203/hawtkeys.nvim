@@ -2,7 +2,7 @@ local M = {}
 local Path = require("plenary.path")
 local scan = require("plenary.scandir")
 local utils = require("hawtkeys.utils")
-local config = require("hawtkeys")
+local hawtkeys = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 
@@ -135,7 +135,7 @@ local function find_maps_in_file(filePath)
     -- need to use TS to resolve it back to a native keymap
     local dotIndexExpressionQuery = ts.parse_query(
         "lua",
-        build_dot_index_expression_query(config.keyMapSet)
+        build_dot_index_expression_query(hawtkeys.config.keyMapSet)
     )
     for match in
         tsQuery.iter_prepared_matches(
@@ -152,7 +152,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = config.keyMapSet[parent]
+                local mapDef = hawtkeys.config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -219,8 +219,10 @@ local function find_maps_in_file(filePath)
         end
     end
 
-    local functionCallQuery =
-        ts.parse_query("lua", build_function_call_query(config.keyMapSet))
+    local functionCallQuery = ts.parse_query(
+        "lua",
+        build_function_call_query(hawtkeys.config.keyMapSet)
+    )
 
     for match in
         tsQuery.iter_prepared_matches(
@@ -237,7 +239,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = config.keyMapSet[parent]
+                local mapDef = hawtkeys.config.keyMapSet[parent]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -306,7 +308,7 @@ local function find_maps_in_file(filePath)
     end
 
     local whichKeyQuery =
-        ts.parse_query("lua", build_which_key_query(config.keyMapSet))
+        ts.parse_query("lua", build_which_key_query(hawtkeys.config.keyMapSet))
 
     for match in
         tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)
@@ -359,7 +361,7 @@ local function get_keymaps_from_vim()
         table.insert(vimKeymaps, {
             mode = vimKeymap.mode,
             -- TODO: leader subsitiution as vim keymaps contain raw leader
-            lhs = vimKeymap.lhs:gsub(config.leader, "<leader>"),
+            lhs = vimKeymap.lhs:gsub(hawtkeys.config.leader, "<leader>"),
             rhs = vimKeymap.rhs,
             from_file = "Vim Defaults",
         })
