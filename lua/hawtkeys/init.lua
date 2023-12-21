@@ -10,9 +10,10 @@ local M = {}
 ---@field homerow number
 ---@field powerFingers number[]
 ---@field keyboardLayout HawtKeySupportedKeyboardLayouts
----@field keyMapSet { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---@field keyMapSet { [string] : TSKeyMapArgs | WhichKeyMapargs }
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
----@field highlights HawtKeyHighlights | nil
+---@field highlights HawtKeyHighlights
+---@field lhsBlacklist string[]
 
 ---@class HawtKeyHighlights
 ---@field HawtkeysMatchGreat vim.api.keyset.highlight | nil
@@ -27,6 +28,7 @@ local M = {}
 ---@field keyboardLayout HawtKeySupportedKeyboardLayouts | nil
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
 ---@field highlights HawtKeyHighlights | nil
+---@field lhsBlacklist string[] | nil
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }---
 local _defaultSet = {
@@ -49,6 +51,7 @@ local _defaultSet = {
     }, -- method 6
 }
 
+---@type HawtKeyConfig
 local defaultConfig = {
     leader = " ",
     homerow = 2,
@@ -61,6 +64,11 @@ local defaultConfig = {
         HawtkeysMatchOk = { link = "DiagnosticWarn" },
         HawtkeysMatchBad = { link = "DiagnosticError" },
     },
+    --[[
+<plug> is used internally by vim to map keys to functions
+Þ is used internally by whickkey to map NOP functions for menu popup timeout
+]]
+    lhsBlacklist = { "<plug>", "Þ" },
 }
 
 local function apply_highlights()
