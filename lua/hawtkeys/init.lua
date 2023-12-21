@@ -1,13 +1,17 @@
+---@class Hawtkeys
+---@field config HawtKeyConfig
 local M = {}
 
----@alias SupportedKeyboardLayouts "qwerty" | "dvorak"
+---@alias HawtKeySupportedKeyboardLayouts "qwerty" | "dvorak"
 
 ---@class HawtKeyConfig
 ---@field leader string
 ---@field homerow number
 ---@field powerFingers number[]
----@field keyboardLayout SupportedKeyboardLayouts
+---@field keyboardLayout HawtKeySupportedKeyboardLayouts
+---@field keyMapSet { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---@field highlights HawtKeyHighlights | nil
 
 ---@class HawtKeyHighlights
 ---@field HawtkeysMatchGreat vim.api.keyset.highlight | nil
@@ -19,13 +23,11 @@ local M = {}
 ---@field leader string | nil
 ---@field homerow number | nil
 ---@field powerFingers number[] | nil
----@field keyboardLayout SupportedKeyboardLayouts | nil
+---@field keyboardLayout HawtKeySupportedKeyboardLayouts | nil
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
 ---@field highlights HawtKeyHighlights | nil
----
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs }---
-
 local _defaultSet = {
     ["vim.keymap.set"] = {
         modeIndex = 1,
@@ -46,7 +48,7 @@ local _defaultSet = {
     }, -- method 6
 }
 
-M.defaultConfig = {
+local defaultConfig = {
     leader = " ",
     homerow = 2,
     powerFingers = { 2, 3, 6, 7 },
@@ -60,38 +62,53 @@ M.defaultConfig = {
     },
 }
 
+local function apply_highlights()
+    for name, props in pairs(M.config.highlights) do
+        local styleConfig
+        if props.link then
+            styleConfig = vim.api.nvim_get_hl(0, {
+                name = props.link,
+                link = false,
+            })
+        else
+            styleConfig = {}
+        end
+
+        for k, v in pairs(props) do
+            if k ~= "link" then
+                styleConfig[k] = v
+            end
+        end
+        vim.api.nvim_set_hl(0, name, styleConfig)
+    end
+end
+
 ---@param config HawtKeyPartialConfig
 function M.setup(config)
-    config = vim.tbl_deep_extend("force", M.defaultConfig, config or {})
-
-    config.keyMapSet =
-        vim.tbl_deep_extend("force", _defaultSet, config.customMaps or {})
-    config.customMaps = nil
-    local appliedHighlights = {}
-    for name, props in pairs(config.highlights) do
-        local styleConfig =
-            vim.api.nvim_get_hl(0, { name = props.link, link = false })
-        for k, v in pairs(props) do
-            if k == "link" then
-                break
-            end
-            styleConfig[k] = v
+    M.config = M.config or {}
+    for k, default in pairs(defaultConfig) do
+        local v = config[k]
+        if k == "highlights" then
+            -- shallow merge to preserve highlight values
+            M.config[k] =
+                vim.tbl_extend("force", defaultConfig.highlights, v or {})
+        elseif k == "keyMapSet" then
+            M.config[k] = vim.tbl_deep_extend(
+                "force",
+                defaultConfig.keyMapSet,
+                config.customMaps or {}
+            )
+        elseif type(default) == "table" then
+            M.config[k] = vim.tbl_deep_extend("force", default, v or {})
+        else
+            M.config[k] = v or default
         end
-        appliedHighlights[name] = styleConfig
     end
 
-    M.config = config
-
-    for name, hl in pairs(appliedHighlights) do
-        vim.api.nvim_set_hl(0, name, hl)
-    end
+    apply_highlights()
 
     vim.api.nvim_create_autocmd("ColorScheme", {
-        callback = function()
-            for name, hl in pairs(appliedHighlights) do
-                vim.api.nvim_set_hl(0, name, hl)
-            end
-        end,
+        callback = apply_highlights,
     })
 
     vim.api.nvim_create_user_command(
