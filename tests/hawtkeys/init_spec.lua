@@ -18,6 +18,7 @@ describe("set up function", function()
     end)
     it("should set up the default config", function()
         hawtkeys.setup({})
+        ---@diagnostic disable-next-line: invisible
         eq(hawtkeys.defaultConfig, hawtkeys.config)
     end)
 
@@ -39,6 +40,7 @@ describe("set up function", function()
             hawtkeys.config.highlights.HawtkeysMatchGreat.link
         )
         eq(
+            ---@diagnostic disable-next-line: invisible
             hawtkeys.defaultConfig.highlights.HawtkeysMatchGood,
             hawtkeys.config.highlights.HawtkeysMatchGood
         )
@@ -56,7 +58,10 @@ describe("set up function", function()
                 },
             },
         })
-        eq("dot_index_expression", hawtkeys.config.keyMapSet["custom.map"].method)
+        eq(
+            "dot_index_expression",
+            hawtkeys.config.keyMapSet["custom.map"].method
+        )
         eq(1, hawtkeys.config.keyMapSet["custom.map"].lhsIndex)
         eq(2, hawtkeys.config.keyMapSet["custom.map"].rhsIndex)
         eq("n", hawtkeys.config.keyMapSet["custom.map"].modeIndex)

@@ -1,5 +1,6 @@
 ---@class Hawtkeys
 ---@field config HawtKeyConfig
+---@field package defaultConfig HawtKeyConfig
 local M = {}
 
 ---@alias HawtKeySupportedKeyboardLayouts "qwerty" | "dvorak"
@@ -127,5 +128,13 @@ function M.setup(config)
         {}
     )
 end
+
+setmetatable(M, {
+    __index = function(_, k)
+        if k == "defaultConfig" then
+            return vim.deepcopy(defaultConfig)
+        end
+    end,
+})
 
 return M
