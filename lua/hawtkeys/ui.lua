@@ -181,11 +181,11 @@ M.show = function()
         -- vertical topleft and topright to look like
         -- these are one window
         border = { "│", "─", "│", "│", "┘", "─", "└", "│" },
-        zindex = 101,
         footer = "Suggested Keybindings",
         win_options = {
             number = true,
             relativenumber = false,
+            winhl = "Normal:NormalFloatNC",
         },
     })
     local searchBuf
@@ -195,6 +195,7 @@ M.show = function()
         row = (vim.o.lines / 2) - (height / 2) - 2,
         style = "minimal",
         title = "Enter Command Description",
+        border = { "┌", "─", "┐", "│", "┤", "─", "├", "│" },
         win_options = {
             number = false,
             relativenumber = false,
