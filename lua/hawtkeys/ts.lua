@@ -356,7 +356,6 @@ local function get_keymaps_from_vim()
     local vimKeymaps = {}
 
     local vimKeymapsRaw = vim.api.nvim_get_keymap("")
-    print("Collecting vim keymaps")
     for _, vimKeymap in ipairs(vimKeymapsRaw) do
         local count = vim.tbl_count(hawtkeys.config.lhsBlacklist)
         for _, blacklist in ipairs(hawtkeys.config.lhsBlacklist) do
