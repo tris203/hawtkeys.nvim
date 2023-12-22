@@ -9,9 +9,11 @@ local tsQuery = require("nvim-treesitter.query")
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
 ---@alias WhichKeyMethods 'which_key'
----
----@alias TreeSitterMethods 'dot_index_expression' | 'function_call' | 'expression_list'
----
+
+---@alias LazyMethods 'lazy'
+
+---@alias TreeSitterMethods 'dot_index_expression' | 'function_call'
+
 ---@alias SetMethods WhichKeyMethods | TreeSitterMethods
 
 ---@class TSKeyMapArgs
@@ -23,6 +25,9 @@ local tsQuery = require("nvim-treesitter.query")
 ---
 ---@class WhichKeyMapargs
 ---@field method WhichKeyMethods
+
+---@class LazyKeyMapArgs
+---@field method LazyMethods
 
 ---@type table<string, boolean>
 local scannedFiles = {}
@@ -130,7 +135,7 @@ local function find_maps_in_file(filePath)
     local fileContent = Path:new(filePath):read()
     local parser = vim.treesitter.get_string_parser(fileContent, "lua", {}) -- Get the Lua parser
     local tree = parser:parse()[1]:root()
-    local tsKemaps = {}
+    local tsKeymaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
     local dotIndexExpressionQuery = ts.parse_query(
@@ -213,7 +218,7 @@ local function find_maps_in_file(filePath)
                         end
                         map.mode = table.concat(modes, ", ")
                     end
-                    table.insert(tsKemaps, map)
+                    table.insert(tsKeymaps, map)
                 end
             end
         end
@@ -301,7 +306,7 @@ local function find_maps_in_file(filePath)
                         end
                         map.mode = table.concat(modes, ", ")
                     end
-                    table.insert(tsKemaps, map)
+                    table.insert(tsKeymaps, map)
                 end
             end
         end
@@ -342,13 +347,43 @@ local function find_maps_in_file(filePath)
                         rhs = mapping.cmd,
                         from_file = filePath,
                     }
-                    table.insert(tsKemaps, map)
+                    table.insert(tsKeymaps, map)
                 end
             end
         end
     end
 
-    return tsKemaps
+    return tsKeymaps
+end
+
+---@return table
+local function get_keymaps_from_lazy()
+    local lazyKeyMaps = {}
+    for _, args in pairs(hawtkeys.config.keyMapSet) do
+        if args.method == "lazy" then
+            local ok, lazy = pcall(function()
+                return require("lazy").plugins()
+            end)
+            if not ok then
+                error("Lazy Loading requires Lazy")
+                break
+            end
+            for _, v in ipairs(lazy) do
+                if v and v._ and v._.handlers and v._.handlers.keys then
+                    for _, key in pairs(v._.handlers.keys) do
+                        local map = {
+                            lhs = key.lhs,
+                            rhs = key.rhs,
+                            mode = key.mode,
+                            from_file = "Lazy Init:" .. tostring(v[1]),
+                        }
+                        table.insert(lazyKeyMaps, map)
+                    end
+                end
+            end
+        end
+    end
+    return lazyKeyMaps
 end
 
 ---@return table
@@ -417,6 +452,16 @@ function M.get_all_keymaps()
                     end
                 end
             end
+        end
+    end
+
+    if
+        hawtkeys.config.keyMapSet.lazy
+        and hawtkeys.config.keyMapSet.lazy.method == "lazy"
+    then
+        local lazyKeyMaps = get_keymaps_from_lazy()
+        for _, keymap in ipairs(lazyKeyMaps) do
+            table.insert(keymaps, keymap)
         end
     end
 
