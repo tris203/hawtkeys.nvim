@@ -1,7 +1,7 @@
 # ⌨️🔥 hawtkeys.nvim
 
-**hawtkeys.nvim** is a nvim plugin for finding and suggesting memorable and easy to press keys for your nvim shortcuts.
-It takes into consideration keyboard layout, easy to press combinations and memorable phrases, and excludes already mapped combinations to provide you with suggested keys for your commands
+**hawtkeys.nvim** is a nvim plugin for finding and suggesting memorable and easy-to-press keys for your nvim shortcuts.
+It takes into consideration keyboard layout, easy-to-press combinations and memorable phrases, and excludes already mapped combinations to provide you with suggested keys for your commands
 
 ## 📦 Installation
 Installation instructions to follow, but as usual with package managers
@@ -22,7 +22,7 @@ There are two interfaces to hawtkeys, the first allows you to Search For Keymaps
 :Hawtkeys
 ```
 
-This will allow you to search keybinds as below:
+This will allow you to search key binds as below:
 
 ![demo](https://github.com/tris203/hawtkeys.nvim/assets/18444302/3e2d0851-4c6d-480f-97a0-a4112d0a6923)
 
@@ -33,7 +33,7 @@ This will allow you to search keybinds as below:
 :HawtkeysAll
 ```
 
-This will launch a window showing all existing keymaps collected from Neovim bindings and from anlysis of your config file.
+This will launch a window showing all existing keymaps collected from Neovim bindings and analysis of your config file.
 
 ### Showing Duplicate Keymaps
 
@@ -41,7 +41,7 @@ This will launch a window showing all existing keymaps collected from Neovim bin
 HawtkeysDupes
 ```
 
-Will show potential duplicate keymaps, where you have accidently set the same key for two different things. This can be useful for tracking down issues with plugins not functioning correctly
+It will show potential duplicate keymaps, where you have accidentally set the same key for two different things. This can be useful for tracking down issues with plugins not functioning correctly
 
 
 ## ⚙️ Config
@@ -88,13 +88,13 @@ return {
     },
 }
 ```
-The default config, will get all keymaps using the ```vim.api.nvim_set_keymap``` and ```vim.keymap.set```.
+The default config will get all keymaps using the ```vim.api.nvim_set_keymap``` and ```vim.keymap.set```.
 
 ## ✍️ Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+If you have a suggestion to improve the plugin, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
 
 If there is something specific you want to work on then, please open an issue/discussion first to avoid duplication of efforts
