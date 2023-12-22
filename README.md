@@ -1,6 +1,6 @@
-# hawtkeys.nvim
+# ⌨️🔥 hawtkeys.nvim
 
-**⌨️🔥hawtkeys.nvim** is a nvim plugin for finding and suggesting memorable and easy to press keys for your nvim shortcuts.
+**hawtkeys.nvim** is a nvim plugin for finding and suggesting memorable and easy to press keys for your nvim shortcuts.
 It takes into consideration keyboard layout, easy to press combinations and memorable phrases, and excludes already mapped combinations to provide you with suggested keys for your commands
 
 ## 📦 Installation
