@@ -1,3 +1,21 @@
+local M = {}
+
+function M.loadLazy()
+    local lazy_dir = os.getenv("LAZY_DIR") or "/tmp/lazy.nvim"
+    if vim.fn.isdirectory(lazy_dir) == 0 then
+        vim.fn.system({
+            "git",
+            "clone",
+            "--filter=blob:none",
+            "https://github.com/folke/lazy.nvim.git",
+            "--branch=stable", -- latest stable release
+            lazy_dir,
+        })
+    end
+    vim.opt.rtp:append(lazy_dir)
+print("Installed Lazy to " .. lazy_dir)
+end
+
 local plenary_dir = os.getenv("PLENARY_DIR") or "/tmp/plenary.nvim"
 local treesitter_dir = os.getenv("TREESITTER_DIR") or "/tmp/nvim-treesitter"
 local whichkey_dir = os.getenv("WHICHKEY_DIR") or "/tmp/which-key.nvim"
@@ -39,6 +57,10 @@ vim.opt.rtp:append(plenary_dir)
 vim.opt.rtp:append(treesitter_dir)
 vim.opt.rtp:append(whichkey_dir)
 vim.opt.rtp:append(mini_dir)
+vim.cmd("runtime plugin/which-key.vim")
+require("which-key").setup({})
+require("plenary.busted")
+require("mini.test").setup()
 
 vim.cmd("runtime plugin/plenary.vim")
 vim.cmd("runtime plugin/treesitter.vim")
@@ -48,7 +70,5 @@ require("nvim-treesitter.configs").setup({
         enable = true,
     },
 })
-vim.cmd("runtime plugin/which-key.vim")
-require("which-key").setup({})
-require("plenary.busted")
-require("mini.test").setup()
+
+return M

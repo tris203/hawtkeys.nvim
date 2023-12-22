@@ -477,5 +477,6 @@ end
 
 M.find_maps_in_file = find_maps_in_file
 M.get_keymaps_from_vim = get_keymaps_from_vim
+M.get_keymaps_from_lazy = get_keymaps_from_lazy
 
 return M

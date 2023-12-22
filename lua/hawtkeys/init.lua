@@ -26,7 +26,7 @@ local M = {}
 ---@field homerow number | nil
 ---@field powerFingers number[] | nil
 ---@field keyboardLayout HawtKeySupportedKeyboardLayouts | nil
----@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs } | nil
 ---@field highlights HawtKeyHighlights | nil
 ---@field lhsBlacklist string[] | nil
 

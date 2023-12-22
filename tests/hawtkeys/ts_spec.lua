@@ -95,3 +95,42 @@ describe("Treesitter can extract keymaps", function()
         eq(beforeCount, finalCount)
     end)
 end)
+
+describe("Lazy Managed Plugins", function()
+    before_each(function()
+        require("plenary.reload").reload_module("hawtkeys")
+        hawtkeys.setup({
+        customMaps = {
+            ['lazy']  = {
+            method = 'lazy',
+            },
+        },
+        })
+        require("tests.minimal_init").loadLazy()
+        vim.g.lazy_did_setup = false
+        vim.go.loadplugins = true
+        for modname in pairs(package.loaded) do
+            if modname:find("lazy") == 1 then
+                package.loaded[modname] = nil
+            end
+        end
+        local lazy = require("lazy")
+        lazy.setup({
+            "ellisonleao/nvim-plugin-template",
+            keys = {
+                {
+                    "<leader>1",
+                    ":lua print(1)<CR>",
+                    desc = "Test Lazy Print 1",
+                },
+            },
+        })
+    end)
+    it("extract keys set in a Lazy init", function()
+        local lazyKeymaps = ts.get_keymaps_from_lazy()
+        eq("n", lazyKeymaps[1].mode)
+        eq("<leader>1", lazyKeymaps[1].lhs)
+        eq(':lua print(1)<CR>', lazyKeymaps[1].rhs)
+        eq("Lazy Init:ellisonleao/nvim-plugin-template", lazyKeymaps[1].from_file)
+    end)
+end)
