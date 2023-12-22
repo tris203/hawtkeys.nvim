@@ -54,7 +54,10 @@ function M.merge_tables(t1, t2)
     for _, v in pairs(t2) do
         local found = false
         for _, v2 in pairs(t3) do
-            if v2.lhs == v.lhs and v.from_file == "Vim Defaults" then
+            if
+                v2.lhs:lower() == v.lhs:lower()
+                and v.from_file == "Vim Defaults"
+            then
                 found = true
             end
         end
