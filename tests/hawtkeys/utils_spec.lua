@@ -21,7 +21,7 @@ describe("utils functionality", function()
         local keymaps = {
             { lhs = "a", rhs = "1" },
             { lhs = "a", rhs = "2" },
-            { lhs = "b", rhs = "3"},
+            { lhs = "b", rhs = "3" },
             { lhs = "b", rhs = "4" },
         }
         local duplicates = utils.find_duplicates(keymaps)

@@ -10,8 +10,8 @@ local M = {}
 ---@field homerow number
 ---@field powerFingers number[]
 ---@field keyboardLayout HawtKeySupportedKeyboardLayouts
----@field keyMapSet { [string] : TSKeyMapArgs | WhichKeyMapargs }
----@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---@field keyMapSet { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs }
+---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs } | nil
 ---@field highlights HawtKeyHighlights
 ---@field lhsBlacklist string[]
 
@@ -26,11 +26,11 @@ local M = {}
 ---@field homerow number | nil
 ---@field powerFingers number[] | nil
 ---@field keyboardLayout HawtKeySupportedKeyboardLayouts | nil
----@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs } | nil
+---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs } | nil
 ---@field highlights HawtKeyHighlights | nil
 ---@field lhsBlacklist string[] | nil
 
----@type { [string] : TSKeyMapArgs | WhichKeyMapargs }---
+---@type { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs }
 local _defaultSet = {
     ["vim.keymap.set"] = {
         modeIndex = 1,
@@ -46,9 +46,6 @@ local _defaultSet = {
         optsIndex = 4,
         method = "dot_index_expression",
     }, --method 2
-    ["whichkey.register"] = {
-        method = "which_key",
-    }, -- method 6
 }
 
 ---@type HawtKeyConfig
