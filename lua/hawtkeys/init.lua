@@ -68,7 +68,7 @@ local defaultConfig = {
     lhsBlacklist = { "<plug>", "Þ" },
 }
 
-local auGroup = vim.api.nvim_create_augroup("hawtkeys", { clear = false })
+local auGroup = vim.api.nvim_create_augroup("hawtkeys", { clear = true })
 
 local function apply_highlights()
     for name, props in pairs(M.config.highlights) do
