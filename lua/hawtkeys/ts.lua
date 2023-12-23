@@ -365,7 +365,7 @@ local function get_keymaps_from_lazy()
                 return require("lazy").plugins()
             end)
             if not ok then
-                error("Lazy Loading requires Lazy")
+                vim.print("Lazy Loading requires Lazy")
                 break
             end
             for _, v in ipairs(lazy) do

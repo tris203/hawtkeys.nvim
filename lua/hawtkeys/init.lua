@@ -46,9 +46,6 @@ local _defaultSet = {
         optsIndex = 4,
         method = "dot_index_expression",
     }, --method 2
-    ["whichkey.register"] = {
-        method = "which_key",
-    }, -- method 6
 }
 
 ---@type HawtKeyConfig

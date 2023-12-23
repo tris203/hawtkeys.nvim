@@ -5,9 +5,56 @@ local eq = assert.are.same
 ---@diagnostic disable-next-line: undefined-field
 local falsy = assert.falsy
 
+describe("Uninstalled plugins", function()
+    before_each(function()
+        require("plenary.reload").reload_module("hawtkeys")
+        ts.reset_scanned_files()
+        hawtkeys.setup({
+            customMaps = {
+                ["lazy"] = {
+                    method = "lazy",
+                },
+                ["whichkey.register"] = {
+                    method = "which_key",
+                },
+            },
+        })
+        vim.cmd("messages clear")
+    end)
+    it("which key doesnt cause error", function()
+        local ok, _ = pcall(function()
+            return require("which-key")
+        end)
+        local keymapWhichKey = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap.lua"
+        )
+        local messages = vim.api.nvim_exec2("messages", { output = true })
+        eq(false, ok)
+        eq(0, #keymapWhichKey)
+        eq(
+            {
+                ["output"] = "Which Key Mappings require which-key to be installed",
+            },
+            messages
+        )
+    end)
+
+    it("Lazy doesnt cause error", function()
+        local ok, _ = pcall(function()
+            return require("lazy")
+        end)
+        local keymapLazy = ts.get_keymaps_from_lazy()
+        local messages = vim.api.nvim_exec2("messages", { output = true })
+        eq(false, ok)
+        eq(0, #keymapLazy)
+        eq({ ["output"] = "Lazy Loading requires Lazy" }, messages)
+    end)
+end)
+
 describe("Treesitter can extract keymaps", function()
     before_each(function()
         require("plenary.reload").reload_module("hawtkeys")
+        ts.reset_scanned_files()
         hawtkeys.setup({})
     end)
     it("extract vim.api.nvim_set_keymap()", function()
@@ -26,15 +73,6 @@ describe("Treesitter can extract keymaps", function()
         eq("n", keymap[1].mode)
         eq("<leader>2", keymap[1].lhs)
         eq(':echo "hello"<CR>', keymap[1].rhs)
-    end)
-
-    it("extract whichkey.register() keymap", function()
-        local keymap = ts.find_maps_in_file(
-            "tests/hawtkeys/example_configs/which-key.register_keymap.lua"
-        )
-        eq("n", keymap[1].mode)
-        eq("<leader>3", keymap[1].lhs)
-        eq(':lua print("hello")<CR>', keymap[1].rhs)
     end)
 
     it("Extract short dot index aliasesd keymap", function()
@@ -96,15 +134,40 @@ describe("Treesitter can extract keymaps", function()
     end)
 end)
 
+describe("Which Key Managed Maps", function()
+    before_each(function()
+        require("plenary.reload").reload_module("hawtkeys")
+        require("tests.minimal_init").loadWhichKey()
+        ts.reset_scanned_files()
+        hawtkeys.setup({
+            customMaps = {
+                ["whichkey.register"] = {
+                    method = "which_key",
+                },
+            },
+        })
+    end)
+
+    it("extract whichkey.register() keymap", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap.lua"
+        )
+        eq("n", keymap[1].mode)
+        eq("<leader>3", keymap[1].lhs)
+        eq(':lua print("hello")<CR>', keymap[1].rhs)
+    end)
+end)
+
 describe("Lazy Managed Plugins", function()
     before_each(function()
         require("plenary.reload").reload_module("hawtkeys")
+        ts.reset_scanned_files()
         hawtkeys.setup({
-        customMaps = {
-            ['lazy']  = {
-            method = 'lazy',
+            customMaps = {
+                ["lazy"] = {
+                    method = "lazy",
+                },
             },
-        },
         })
         require("tests.minimal_init").loadLazy()
         vim.g.lazy_did_setup = false
@@ -130,7 +193,10 @@ describe("Lazy Managed Plugins", function()
         local lazyKeymaps = ts.get_keymaps_from_lazy()
         eq("n", lazyKeymaps[1].mode)
         eq("<leader>1", lazyKeymaps[1].lhs)
-        eq(':lua print(1)<CR>', lazyKeymaps[1].rhs)
-        eq("Lazy Init:ellisonleao/nvim-plugin-template", lazyKeymaps[1].from_file)
+        eq(":lua print(1)<CR>", lazyKeymaps[1].rhs)
+        eq(
+            "Lazy Init:ellisonleao/nvim-plugin-template",
+            lazyKeymaps[1].from_file
+        )
     end)
 end)
