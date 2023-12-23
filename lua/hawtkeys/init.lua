@@ -68,6 +68,8 @@ local defaultConfig = {
     lhsBlacklist = { "<plug>", "Þ" },
 }
 
+local auGroup = vim.api.nvim_create_augroup("hawtkeys", { clear = true })
+
 local function apply_highlights()
     for name, props in pairs(M.config.highlights) do
         local styleConfig
@@ -115,6 +117,7 @@ function M.setup(config)
 
     vim.api.nvim_create_autocmd("ColorScheme", {
         callback = apply_highlights,
+        group = auGroup,
     })
 
     vim.api.nvim_create_user_command(
