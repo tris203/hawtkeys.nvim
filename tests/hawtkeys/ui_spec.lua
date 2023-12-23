@@ -1,3 +1,4 @@
+---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
 
 local MiniTest = require("mini.test")

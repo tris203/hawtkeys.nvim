@@ -31,12 +31,9 @@ describe("Uninstalled plugins", function()
         local messages = vim.api.nvim_exec2("messages", { output = true })
         eq(false, ok)
         eq(0, #keymapWhichKey)
-        eq(
-            {
-                ["output"] = "Which Key Mappings require which-key to be installed",
-            },
-            messages
-        )
+        eq({
+            ["output"] = "Which Key Mappings require which-key to be installed",
+        }, messages)
     end)
 
     it("Lazy doesnt cause error", function()
