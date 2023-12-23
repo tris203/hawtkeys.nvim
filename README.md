@@ -24,7 +24,8 @@ There are two interfaces to hawtkeys, the first allows you to Search For Keymaps
 
 This will allow you to search key binds as below:
 
-![demo](https://github.com/tris203/hawtkeys.nvim/assets/18444302/3e2d0851-4c6d-480f-97a0-a4112d0a6923)
+
+https://github.com/tris203/hawtkeys.nvim/assets/38540736/5e5dcc9d-4224-4f5f-9141-64215bdb8aec
 
 
 ### Show All Existing Keymaps
