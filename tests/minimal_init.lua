@@ -27,6 +27,7 @@ function M.loadWhichKey()
         })
     end
     vim.opt.rtp:append(whichkey_dir)
+    vim.cmd("runtime plugin/which-key.vim")
     print("Installed WhichKey to " .. whichkey_dir)
     require("which-key").setup({})
 end
@@ -62,7 +63,6 @@ vim.opt.rtp:append(".")
 vim.opt.rtp:append(plenary_dir)
 vim.opt.rtp:append(treesitter_dir)
 vim.opt.rtp:append(mini_dir)
-vim.cmd("runtime plugin/which-key.vim")
 require("plenary.busted")
 require("mini.test").setup()
 
