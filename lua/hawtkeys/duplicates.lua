@@ -8,11 +8,12 @@ function M.show_duplicates()
     local duplicates = utils.find_duplicates(allKeys)
     local resultTable = {}
     for index, data in pairs(duplicates) do
-        table.insert(resultTable, tostring(index) .. " duplicates found in ")
-        table.insert(
-            resultTable,
-            tostring(data[1].from_file) .. ":" .. tostring(data[2].from_file)
-        )
+        local object = {
+            key = index,
+            file1 = data[1].from_file,
+            file2 = data[2].from_file,
+        }
+        table.insert(resultTable, object)
     end
     return resultTable
 end

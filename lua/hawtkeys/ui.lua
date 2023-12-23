@@ -266,13 +266,16 @@ M.show_all = function()
         local filename = data.from_file:gsub(vim.env.HOME, "~")
         local line = pattern:format(data.lhs, data.mode, filename)
 
-        local offset_mode = #data.lhs + 2
-        local offset_file = offset_mode + #data.mode + 2
-
         local l2 = data.rhs
         if l2 == nil or l2 == "" then
             l2 = "<unknown>"
         end
+
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
+
         vim.api.nvim_buf_set_lines(
             ResultBuf,
             i == 1 and 0 or -1,
@@ -281,18 +284,7 @@ M.show_all = function()
             { line }
         )
         -- highlight the filename
-        vim.api.nvim_buf_add_highlight(
-            ResultBuf,
-            -1,
-            "Comment",
-            i - 1,
-            offset_file,
-            -1
-        )
-        -- mapping rhs as extmark so the cursor skips over it
-        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
-            virt_lines = { { { l2, "Function" } } },
-        })
+        vim.api.nvim_buf_add_highlight(ResultBuf, -1, "Comment", i - 1, 0, -1)
     end
 end
 
@@ -305,13 +297,28 @@ M.show_dupes = function()
         height = height,
         footer = "Duplicate Keybindings",
     })
-    vim.api.nvim_buf_set_lines(
-        ResultBuf,
-        0,
-        -1,
-        false,
-        showDuplicates.show_duplicates()
-    )
+    local dupes = showDuplicates.show_duplicates()
+    local pattern = "%s : %s"
+    for i, data in ipairs(dupes) do
+        local filename1 = data.file1:gsub(vim.env.HOME, "~")
+        local filename2 = data.file2:gsub(vim.env.HOME, "~")
+        local line = pattern:format(filename1, filename2)
+
+        local l2 = data.key
+        vim.api.nvim_buf_set_lines(
+            ResultBuf,
+            i == 1 and 0 or -1,
+            -1,
+            false,
+            { line }
+        )
+        -- highlight the filename
+        vim.api.nvim_buf_add_highlight(ResultBuf, -1, "Comment", i - 1, 0, -1)
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
+    end
 end
 
 M.hide = function()
