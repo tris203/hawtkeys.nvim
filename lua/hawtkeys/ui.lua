@@ -266,10 +266,18 @@ M.show_all = function()
         local filename = data.from_file:gsub(vim.env.HOME, "~")
         local line = pattern:format(data.lhs, data.mode, filename)
 
+        local offset_mode = #data.lhs + 2
+        local offset_file = offset_mode + #data.mode + 2
+
         local l2 = data.rhs
         if l2 == nil or l2 == "" then
             l2 = "<unknown>"
         end
+
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
 
         -- mapping rhs as extmark so the cursor skips over it
         vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
@@ -284,7 +292,18 @@ M.show_all = function()
             { line }
         )
         -- highlight the filename
-        vim.api.nvim_buf_add_highlight(ResultBuf, -1, "Comment", i - 1, 0, -1)
+        vim.api.nvim_buf_add_highlight(
+            ResultBuf,
+            -1,
+            "Comment",
+            i - 1,
+            offset_file,
+            -1
+        )
+        -- mapping rhs as extmark so the cursor skips over it
+        vim.api.nvim_buf_set_extmark(ResultBuf, Namespace, i - 1, 0, {
+            virt_lines = { { { l2, "Function" } } },
+        })
     end
 end
 
