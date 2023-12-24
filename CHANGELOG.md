@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.0...v1.0.1) (2023-12-24)
+
+
+### Bug Fixes
+
+* HawtKeysAll highlights bug ([#52](https://github.com/tris203/hawtkeys.nvim/issues/52)) ([57d0b0e](https://github.com/tris203/hawtkeys.nvim/commit/57d0b0e3c7f93f47c9b9f94da59bdc7403decb27))
+
 ## 1.0.0 (2023-12-23)
 
 
