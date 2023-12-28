@@ -205,8 +205,7 @@ local function find_maps_in_file(filePath)
                     if map.mode:match("^%s*{.*},?.*$") then
                         local modes = {}
                         for i, child in
-                            vim.iter(node.node:child(1):iter_children())
-                                :enumerate()
+                            ipairs(node.node:child(1):iter_children())
                         do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
@@ -292,8 +291,7 @@ local function find_maps_in_file(filePath)
                     if map.mode:match("^%s*{.*},?.*$") then
                         local modes = {}
                         for i, child in
-                            vim.iter(node.node:child(1):iter_children())
-                                :enumerate()
+                            ipairs(node.node:child(1):iter_children())
                         do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
