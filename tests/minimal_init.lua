@@ -70,6 +70,7 @@ vim.cmd("runtime plugin/plenary.vim")
 vim.cmd("runtime plugin/treesitter.vim")
 require("nvim-treesitter.configs").setup({
     ensure_installed = "lua",
+    sync_install = true,
     highlight = {
         enable = true,
     },
