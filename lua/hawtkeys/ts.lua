@@ -204,9 +204,8 @@ local function find_maps_in_file(filePath)
 
                     if map.mode:match("^%s*{.*},?.*$") then
                         local modes = {}
-                        for i, child in
-                            ipairs(node.node:child(1):iter_children())
-                        do
+                        local i = 1
+                        for child in node.node:child(1):iter_children() do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
                                     .get_node_text(child, fileContent)
@@ -214,6 +213,7 @@ local function find_maps_in_file(filePath)
                                     :gsub("[\n\r]", "")
                                 table.insert(modes, ty)
                             end
+                            i = i + 1
                         end
                         map.mode = table.concat(modes, ", ")
                     end
@@ -290,9 +290,8 @@ local function find_maps_in_file(filePath)
 
                     if map.mode:match("^%s*{.*},?.*$") then
                         local modes = {}
-                        for i, child in
-                            ipairs(node.node:child(1):iter_children())
-                        do
+                        local i = 1
+                        for child in node.node:child(1):iter_children() do
                             if i % 2 == 0 then
                                 local ty = vim.treesitter
                                     .get_node_text(child, fileContent)
@@ -301,6 +300,7 @@ local function find_maps_in_file(filePath)
                                 -- vim.print("type: " .. vim.inspect(ty))
                                 table.insert(modes, ty)
                             end
+                            i = i + 1
                         end
                         map.mode = table.concat(modes, ", ")
                     end
