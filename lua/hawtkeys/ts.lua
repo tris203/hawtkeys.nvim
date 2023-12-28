@@ -114,7 +114,7 @@ end
 ---@param dir string
 ---@return table
 local function find_files(dir)
-    print("Scanning dir" .. dir)
+    -- print("Scanning dir" .. dir)
     local dirScan = dir or vim.fn.stdpath("config")
     local files = scan.scan_dir(dirScan, { hidden = true })
     return files
@@ -124,7 +124,7 @@ end
 ---@return table
 local function find_maps_in_file(filePath)
     if scannedFiles[filePath] then
-        print("Already scanned")
+        -- already scanned
         return {}
     end
     scannedFiles[filePath] = true
@@ -298,7 +298,7 @@ local function find_maps_in_file(filePath)
                                     .get_node_text(child, fileContent)
                                     :gsub("['\"]", "")
                                     :gsub("[\n\r]", "")
-                                vim.print("type: " .. vim.inspect(ty))
+                                -- vim.print("type: " .. vim.inspect(ty))
                                 table.insert(modes, ty)
                             end
                         end
@@ -322,8 +322,9 @@ local function find_maps_in_file(filePath)
                     return require("which-key.mappings")
                 end)
                 if not wkLoaded then
-                    vim.print(
-                        "Which Key Mappings require which-key to be installed"
+                    vim.notify_once(
+                        "Which Key Mappings require which-key to be installed",
+                        vim.log.levels.WARN
                     )
                     break
                 end
@@ -333,7 +334,10 @@ local function find_maps_in_file(filePath)
                     return loadstring("return " .. strObj)()
                 end)
                 if not ok then
-                    vim.print("Error parsing which-key table")
+                    vim.notify_once(
+                        "Error parsing which-key table",
+                        vim.log.levels.ERROR
+                    )
                     break
                 end
                 local wkMapping = which_key.parse(tableObj)
@@ -363,7 +367,10 @@ local function get_keymaps_from_lazy()
                 return require("lazy").plugins()
             end)
             if not ok then
-                vim.print("Lazy Loading requires Lazy")
+                vim.notify_once(
+                    "Lazy Loading requires Lazy",
+                    vim.log.levels.INFO
+                )
                 break
             end
             for _, v in ipairs(lazy) do
