@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.1...v1.0.2) (2023-12-28)
+
+
+### Bug Fixes
+
+* **compat:** remove usage of vim.iter ([0409b73](https://github.com/tris203/hawtkeys.nvim/commit/0409b735602a1402e38516db76fcbb3bc032fcfc)), closes [#54](https://github.com/tris203/hawtkeys.nvim/issues/54)
+* remove `vim.print`s, use `vim.notify_once` ([72f102d](https://github.com/tris203/hawtkeys.nvim/commit/72f102d2c6160893a6ee468993757a715c23310d)), closes [#54](https://github.com/tris203/hawtkeys.nvim/issues/54)
+
 ## [1.0.1](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.0...v1.0.1) (2023-12-24)
 
 
