@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.3](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.2...v1.0.3) (2023-12-28)
+
+
+### Bug Fixes
+
+* **ci:** use `sync_install` for treesitter parsers ([18da711](https://github.com/tris203/hawtkeys.nvim/commit/18da711209fb1bda23ae72d7afcb40062a50e5e6))
+* remove `ipairs` wrapping `node:iter_children` ([4fc9322](https://github.com/tris203/hawtkeys.nvim/commit/4fc9322019bb3c338f30910cacea8bd7fbffc12b))
+
 ## [1.0.2](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.1...v1.0.2) (2023-12-28)
 
 
