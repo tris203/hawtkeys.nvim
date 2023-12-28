@@ -223,7 +223,7 @@ local function find_maps_in_file(filePath)
                             end
                             i = i + 1
                         end
-                        map.mode = table.concat(modes, ", ")
+                        map.mode = modes
                     end
                     table.insert(tsKeymaps, map)
                 end
@@ -311,7 +311,7 @@ local function find_maps_in_file(filePath)
                             end
                             i = i + 1
                         end
-                        map.mode = table.concat(modes, ", ")
+                        map.mode = modes
                     end
                     table.insert(tsKeymaps, map)
                 end

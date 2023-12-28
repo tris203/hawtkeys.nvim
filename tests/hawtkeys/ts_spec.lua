@@ -72,6 +72,19 @@ describe("Treesitter can extract keymaps", function()
         eq(':echo "hello"<CR>', keymap[1].rhs)
     end)
 
+    it("extract multi-mode keymaps", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/multi_mode.lua"
+        )
+        eq({ "n", "x" }, keymap[1].mode)
+        eq("<leader>2", keymap[1].lhs)
+        eq(':echo "hello"<CR>', keymap[1].rhs)
+
+        eq({ "x", "v" }, keymap[2].mode)
+        eq("<leader>2", keymap[2].lhs)
+        eq(':echo "hello2"<CR>', keymap[2].rhs)
+    end)
+
     it("Extract short dot index aliasesd keymap", function()
         hawtkeys.setup({
             customMaps = {
