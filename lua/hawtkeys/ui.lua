@@ -320,8 +320,8 @@ M.show_dupes = function()
     local dupes = showDuplicates.show_duplicates()
     local pattern = "%s : %s"
     for i, data in ipairs(dupes) do
-        local filename1 = data.file1:gsub(vim.env.HOME, "~")
-        local filename2 = data.file2:gsub(vim.env.HOME, "~")
+        local filename1 = utils.reduceHome(data.file1)
+        local filename2 = utils.reduceHome(data.file2)
         local line = pattern:format(filename1, filename2)
 
         local l2 = data.key
