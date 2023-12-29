@@ -80,4 +80,11 @@ function M.find_duplicates(keymaps)
     return duplicates
 end
 
+---@param path string
+---@return string
+function M.reduceHome(path)
+    local reduced = path:gsub(vim.env.HOME, "~")
+    return reduced
+end
+
 return M

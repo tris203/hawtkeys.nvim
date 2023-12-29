@@ -376,9 +376,18 @@ local function get_keymaps_from_lazy()
             for _, v in ipairs(lazy) do
                 if v and v._ and v._.handlers and v._.handlers.keys then
                     for _, key in pairs(v._.handlers.keys) do
+                        if type(key.rhs) == "table" then
+                            key.rhs = tostring(key.rhs)
+                        elseif type(key.rhs) == "function" then
+                            local debugInfo =
+                                debug.getinfo(key.rhs --[[@as fun()]], "S")
+                            key.rhs = utils.reduceHome(debugInfo.short_src)
+                                .. ":"
+                                .. debugInfo.linedefined
+                        end
                         local map = {
                             lhs = key.lhs,
-                            rhs = key.rhs,
+                            rhs = tostring(key.rhs),
                             mode = key.mode,
                             from_file = "Lazy Init:" .. tostring(v[1]),
                         }
