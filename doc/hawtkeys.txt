@@ -1,4 +1,4 @@
-*hawtkeys.txt*           For NVIM >=0.9          Last change: 2023 December 28
+*hawtkeys.txt*           For NVIM >=0.9          Last change: 2023 December 29
 
 ==============================================================================
 Table of Contents                                 *hawtkeys-table-of-contents*
