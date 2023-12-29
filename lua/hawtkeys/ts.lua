@@ -378,7 +378,7 @@ local function get_keymaps_from_lazy()
                     for _, key in pairs(v._.handlers.keys) do
                         local map = {
                             lhs = key.lhs,
-                            rhs = key.rhs,
+                            rhs = tostring(key.rhs),
                             mode = key.mode,
                             from_file = "Lazy Init:" .. tostring(v[1]),
                         }
