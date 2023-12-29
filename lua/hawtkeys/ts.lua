@@ -380,7 +380,7 @@ local function get_keymaps_from_lazy()
                             key.rhs = tostring(key.rhs)
                         elseif type(key.rhs) == "function" then
                             local debugInfo =
-                                debug.getinfo(key.rhs --[[@as function]], "S")
+                                debug.getinfo(key.rhs --[[@as fun()]], "S")
                             key.rhs = utils.reduceHome(debugInfo.short_src)
                                 .. ":"
                                 .. debugInfo.linedefined
