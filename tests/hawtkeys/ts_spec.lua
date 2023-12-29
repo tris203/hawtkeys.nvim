@@ -196,28 +196,30 @@ describe("Lazy Managed Plugins", function()
             lazyKeymaps[1].from_file
         )
     end)
-    it("extract keys where the lazy key setting is a function and returns as string", function()
-
-        local lazy = require("lazy")
-        lazy.setup({
-            "ellisonleao/nvim-plugin-template",
-            keys = {
-                {
-                    "<leader>1",
-                    function()
-                        print(1)
-                    end,
-                    desc = "Test Lazy Print 1",
+    it(
+        "extract keys where the lazy key setting is a function and returns as string",
+        function()
+            local lazy = require("lazy")
+            lazy.setup({
+                "ellisonleao/nvim-plugin-template",
+                keys = {
+                    {
+                        "<leader>1",
+                        function()
+                            print(1)
+                        end,
+                        desc = "Test Lazy Print 1",
+                    },
                 },
-            },
-        })
-        local lazyKeymaps = ts.get_keymaps_from_lazy()
-        eq("n", lazyKeymaps[1].mode)
-        eq("<leader>1", lazyKeymaps[1].lhs)
-        eq("string", type(lazyKeymaps[1].rhs))
-        eq(
-            "Lazy Init:ellisonleao/nvim-plugin-template",
-            lazyKeymaps[1].from_file
-        )
-    end)
+            })
+            local lazyKeymaps = ts.get_keymaps_from_lazy()
+            eq("n", lazyKeymaps[1].mode)
+            eq("<leader>1", lazyKeymaps[1].lhs)
+            eq("string", type(lazyKeymaps[1].rhs))
+            eq(
+                "Lazy Init:ellisonleao/nvim-plugin-template",
+                lazyKeymaps[1].from_file
+            )
+        end
+    )
 end)
