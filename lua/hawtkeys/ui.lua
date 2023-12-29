@@ -3,6 +3,7 @@ local M = {}
 local Hawtkeys = require("hawtkeys.score")
 local ShowAll = require("hawtkeys.show_all")
 local showDuplicates = require("hawtkeys.duplicates")
+local utils = require("hawtkeys.utils")
 
 local Namespace = vim.api.nvim_create_namespace("hawtkeys")
 
@@ -263,7 +264,7 @@ M.show_all = function()
     local all = ShowAll.show_all()
     local pattern = "%s (%s) - %s"
     for i, data in ipairs(all) do
-        local filename = data.from_file:gsub(vim.env.HOME, "~")
+        local filename = utils.reduceHome(data.from_file)
         local line = pattern:format(data.lhs, data.mode, filename)
 
         local offset_mode = #data.lhs + 2
