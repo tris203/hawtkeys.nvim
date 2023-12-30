@@ -1,8 +1,9 @@
+---
 name: Generate documentation
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -20,6 +21,7 @@ jobs:
           vimdoc: hawtkeys
           version: "NVIM >=0.9"
           toc: true
+          description: "For Nvim >=0.9"
           demojify: true
           treesitter: true
       - uses: stefanzweifel/git-auto-commit-action@v4
