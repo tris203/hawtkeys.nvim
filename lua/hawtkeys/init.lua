@@ -131,7 +131,10 @@ function M.setup(config)
     end, {
         desc = "Show Hawtkeys",
         nargs = "?",
-        complete = function()
+        complete = function(arg_lead, _, pos)
+            if (pos - 9) > #arg_lead then
+                return {}
+            end
             return { "all", "dupes", "search" }
         end,
     })
