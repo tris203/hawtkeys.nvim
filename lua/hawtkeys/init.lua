@@ -121,9 +121,10 @@ function M.setup(config)
     })
 
     vim.api.nvim_create_user_command("Hawtkeys", function(args)
-        if args.fargs[#args.fargs]:lower() == "all" then
+        local cmd = args.fargs[1] and args.fargs[1]:gsub("^%s+", ""):gsub("%s$", ""):lower()
+        if cmd == "all" then
             require("hawtkeys.ui").show_all()
-        elseif args.fargs[#args.fargs]:lower() == "dupes" then
+        elseif cmd == "dupes" then
             require("hawtkeys.ui").show_dupes()
         else
             require("hawtkeys.ui").show()
