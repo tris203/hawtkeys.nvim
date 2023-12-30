@@ -120,11 +120,27 @@ function M.setup(config)
         group = auGroup,
     })
 
-    vim.api.nvim_create_user_command(
-        "Hawtkeys",
-        "lua require('hawtkeys.ui').show()",
-        {}
-    )
+    vim.api.nvim_create_user_command("Hawtkeys", function(args)
+        local cmd = args.fargs[1]
+            and args.fargs[1]:gsub("^%s+", ""):gsub("%s$", ""):lower()
+        if cmd == "all" then
+            require("hawtkeys.ui").show_all()
+        elseif cmd == "dupes" then
+            require("hawtkeys.ui").show_dupes()
+        else
+            require("hawtkeys.ui").show()
+        end
+    end, {
+        desc = "Show Hawtkeys",
+        nargs = "?",
+        complete = function(arg_lead, _, pos)
+            if (pos - 9) > #arg_lead then
+                return {}
+            end
+            return { "all", "dupes", "search" }
+        end,
+    })
+
     vim.api.nvim_create_user_command(
         "HawtkeysAll",
         "lua require('hawtkeys.ui').show_all()",

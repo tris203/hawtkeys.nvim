@@ -1,12 +1,17 @@
 local hawtkeys = require("hawtkeys")
 ---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
----@diagnostic disable-next-line: undefined-field
-local falsy = assert.falsy
+
 local userCommands = {
-    ["Hawtkeys"] = "lua require('hawtkeys.ui').show()",
-    ["HawtkeysAll"] = "lua require('hawtkeys.ui').show_all()",
-    ["HawtkeysDupes"] = "lua require('hawtkeys.ui').show_dupes()",
+    ["Hawtkeys"] = { definition = "Show Hawtkeys", nargs = "?" },
+    ["HawtkeysAll"] = {
+        definition = "lua require('hawtkeys.ui').show_all()",
+        nargs = "0",
+    },
+    ["HawtkeysDupes"] = {
+        definition = "lua require('hawtkeys.ui').show_dupes()",
+        nargs = "0",
+    },
 }
 
 describe("set up function", function()
@@ -69,17 +74,13 @@ describe("set up function", function()
     end)
 
     it("User commands should be available after setup", function()
-        local commandspresetup = vim.api.nvim_get_commands({})
         hawtkeys.setup({})
 
         local commandsPostSetup = vim.api.nvim_get_commands({})
-        -- Check that the commands are not present before setup
-        for command, _ in ipairs(userCommands) do
-            falsy(commandspresetup[command])
-        end
         -- Check that the commands are present after setup
-        for command, action in ipairs(userCommands) do
-            eq(action, commandsPostSetup[command].definition)
+        for command, action in pairs(userCommands) do
+            eq(action.definition, commandsPostSetup[command].definition)
+            eq(action.nargs, commandsPostSetup[command].nargs)
         end
     end)
 end)
