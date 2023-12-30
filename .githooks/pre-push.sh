@@ -7,6 +7,10 @@
 stylua --check lua/ --config-path ./.stylua.toml || exit 1
 echo "Stylua check passed"
 
+# Stylua Tests
+stylua --check tests/ --config-path ./.stylua.toml || exit 1
+echo "Stylua check tests passed"
+
 # Luacheck
 luacheck lua/ --globals vim || exit 1
 echo "Luacheck passed"
