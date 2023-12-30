@@ -118,7 +118,7 @@ local function return_field_data(node, indexData, targetData, fileContent)
 end
 
 ---@param dir string
----@return table
+---@return string[]
 local function find_files(dir)
     -- print("Scanning dir" .. dir)
     local dirScan = dir or vim.fn.stdpath("config")

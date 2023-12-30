@@ -34,7 +34,7 @@ end
 
 ---@param t1 HawtkeysKeyMapData[]
 ---@param t2 HawtkeysKeyMapData[]
----@return table
+---@return HawtkeysKeyMapData[]
 function M.merge_tables(t1, t2)
     local t3 = {}
 

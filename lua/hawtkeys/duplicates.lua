@@ -2,7 +2,12 @@ local M = {}
 local utils = require("hawtkeys.utils")
 local tsSearch = require("hawtkeys.ts")
 
----@return table
+---@class HawtkeysDuplicatesData
+---@field key string
+---@field file1 HawtkeysKeyMapData
+---@field file2 HawtkeysKeyMapData
+
+---@return HawtkeysDuplicatesData[]
 function M.show_duplicates()
     local allKeys = tsSearch.get_all_keymaps()
     local duplicates = utils.find_duplicates(allKeys)

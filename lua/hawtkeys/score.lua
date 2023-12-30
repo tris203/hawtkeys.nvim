@@ -89,7 +89,7 @@ end
 
 -- Function to generate all possible two-character combinations
 ---@param str string
----@return table
+---@return string[]
 local function generate_combos(str)
     str = str:gsub(hawtkeys.config.leader, "")
     local pairs = {}
@@ -104,8 +104,11 @@ local function generate_combos(str)
     return pairs
 end
 
+---@class HawtkeysScoreData
+---@field [string] integer
+
 ---@param str string
----@return table
+---@return HawtkeysScoreData[]
 local function find_matches(str)
     local combinations = generate_combos(str)
     local scores = {}
