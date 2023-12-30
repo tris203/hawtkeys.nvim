@@ -32,8 +32,8 @@ function M.top5(scores_table)
     return top_list
 end
 
----@param t1 table
----@param t2 table
+---@param t1 HawtkeysKeyMapData[]
+---@param t2 HawtkeysKeyMapData[]
 ---@return table
 function M.merge_tables(t1, t2)
     local t3 = {}
@@ -68,6 +68,8 @@ function M.merge_tables(t1, t2)
     return t3
 end
 
+---@param keymaps HawtkeysKeyMapData[]
+---@return { [string]: HawtkeysKeyMapData[] }
 function M.find_duplicates(keymaps)
     local duplicates = {}
     for _, v in pairs(keymaps) do

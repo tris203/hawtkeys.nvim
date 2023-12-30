@@ -1,8 +1,6 @@
 local utils = require("hawtkeys.utils")
 ---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
----@diagnostic disable-next-line: undefined-field
-local falsy = assert.falsy
 
 describe("utils functionality", function()
     it("can find duplicate lhs in table", function()

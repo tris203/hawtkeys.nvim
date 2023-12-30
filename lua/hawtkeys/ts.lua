@@ -8,6 +8,12 @@ local tsQuery = require("nvim-treesitter.query")
 
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
+---@class HawtkeysKeyMapData
+---@field lhs string
+---@field rhs string
+---@field mode VimModes
+---@field from_file string
+
 ---@alias WhichKeyMethods 'which_key'
 
 ---@alias LazyMethods 'lazy'
@@ -57,7 +63,7 @@ local function build_dot_index_expression_query(mapDefs)
     return string.format(query, build_args(mapDefs, "dot_index_expression"))
 end
 
----@param mapDefs TSKeyMapArgs[]
+---@param mapDefs WhichKeyMapargs[]
 ---@return string
 local function build_which_key_query(mapDefs)
     local query = [[
@@ -80,7 +86,7 @@ local function build_function_call_query(mapDefs)
 end
 
 ---@param node TSNode
----@param indexData TSKeyMapArgs | WhichKeyMapargs
+---@param indexData TSKeyMapArgs
 ---@param targetData string
 ---@param fileContent string
 ---@return string
@@ -121,7 +127,7 @@ local function find_files(dir)
 end
 
 ---@param filePath string
----@return table
+---@return HawtkeysKeyMapData[]
 local function find_maps_in_file(filePath)
     if scannedFiles[filePath] then
         -- already scanned
@@ -157,7 +163,8 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = hawtkeys.config.keyMapSet[parent]
+                --@type TSKeyMapArgs
+                local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -195,6 +202,7 @@ local function find_maps_in_file(filePath)
                 end
 
                 if not bufLocal then
+                    ---@type HawtkeysKeyMapData
                     local map = {
                         mode = mode,
                         lhs = lhs,
@@ -243,7 +251,7 @@ local function find_maps_in_file(filePath)
                     node.node:parent():child(0),
                     fileContent
                 )
-                local mapDef = hawtkeys.config.keyMapSet[parent]
+                local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
                 ---@type string
                 local mode = return_field_data(
                     node.node,
@@ -281,6 +289,7 @@ local function find_maps_in_file(filePath)
                 end
 
                 if not bufLocal then
+                    ---@type HawtkeysKeyMapData
                     local map = {
                         mode = mode,
                         lhs = lhs,
@@ -358,7 +367,7 @@ local function find_maps_in_file(filePath)
     return tsKeymaps
 end
 
----@return table
+---@return HawtkeysKeyMapData[]
 local function get_keymaps_from_lazy()
     local lazyKeyMaps = {}
     for _, args in pairs(hawtkeys.config.keyMapSet) do
@@ -400,7 +409,7 @@ local function get_keymaps_from_lazy()
     return lazyKeyMaps
 end
 
----@return table
+---@return HawtkeysKeyMapData[]
 local function get_keymaps_from_vim()
     local vimKeymaps = {}
 
@@ -437,12 +446,13 @@ local function get_runtime_path()
     return vim.api.nvim_list_runtime_paths()
 end
 
----@return table
+---@return HawtkeysKeyMapData[]
 function M.get_all_keymaps()
     local returnKeymaps
     --[[ if next(returnKeymaps) ~= nil then
         return returnKeymaps
     end ]]
+    ---@type HawtkeysKeyMapData[]
     local keymaps = {}
 
     if M._testing then
