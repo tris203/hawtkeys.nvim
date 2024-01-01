@@ -339,6 +339,17 @@ M.show_dupes = function()
             virt_lines = { { { l2, "Function" } } },
         })
     end
+    if #dupes == 0 then
+        vim.api.nvim_buf_set_lines(
+            ResultBuf,
+            0,
+            -1,
+            false,
+            { "No duplicate keybindings found" }
+        )
+
+        vim.api.nvim_buf_add_highlight(ResultBuf, -1, "Comment", 0, 0, -1)
+    end
 end
 
 M.hide = function()
