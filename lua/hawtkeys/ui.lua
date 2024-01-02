@@ -265,10 +265,16 @@ M.show_all = function()
     local pattern = "%s (%s) - %s"
     for i, data in ipairs(all) do
         local filename = utils.reduceHome(data.from_file)
-        local line = pattern:format(data.lhs, data.mode, filename)
+        local mode
+        if type(data.mode) == "table" then
+            mode = table.concat(data.mode, ", ")
+        else
+            mode = data.mode
+        end
+        local line = pattern:format(data.lhs, mode, filename)
 
         local offset_mode = #data.lhs + 2
-        local offset_file = offset_mode + #data.mode + 2
+        local offset_file = offset_mode + #mode + 2
 
         local l2 = data.rhs
         if l2 == nil or l2 == "" then

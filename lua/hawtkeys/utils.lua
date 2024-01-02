@@ -68,17 +68,55 @@ function M.merge_tables(t1, t2)
     return t3
 end
 
+---Returns true if a and b contain any of the same values
+---@param a string | string[]
+---@param b string | string[]
+---@return boolean
+local function match_modes(a, b)
+    if type(a) == "string" then
+        a = { a }
+    end
+    if type(b) == "string" then
+        b = { b }
+    end
+    -- note: there will only ever be a few modes in each table. this is fine.
+    for _, v in ipairs(a) do
+        for _, v2 in ipairs(b) do
+            if v == v2 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 ---@param keymaps HawtkeysKeyMapData[]
 ---@return { [string]: HawtkeysKeyMapData[] }
 function M.find_duplicates(keymaps)
     local duplicates = {}
+    local seen = {}
     for _, v in pairs(keymaps) do
         for _, v2 in pairs(keymaps) do
-            if v.lhs == v2.lhs and v.mode == v2.mode and v.rhs ~= v2.rhs then
-                duplicates[v.lhs] = { v, v2 }
+            if
+                v.lhs == v2.lhs
+                and v.rhs ~= v2.rhs
+                and match_modes(v.mode or "n", v2.mode or "n")
+            then
+                if not seen[v.lhs] then
+                    seen[v.lhs] = {}
+                end
+                if duplicates[v.lhs] == nil then
+                    duplicates[v.lhs] = { v, v2 }
+                    seen[v.lhs][v] = true
+                    seen[v.lhs][v2] = true
+                elseif seen[v.lhs] == nil or seen[v.lhs][v2] == nil then
+                    table.insert(duplicates[v.lhs], v2)
+                    seen[v.lhs][v2] = true
+                end
             end
         end
     end
+
     return duplicates
 end
 
