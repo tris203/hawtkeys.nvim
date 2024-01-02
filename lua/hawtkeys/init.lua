@@ -14,6 +14,7 @@ local M = {}
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs } | nil
 ---@field highlights HawtKeyHighlights
 ---@field lhsBlacklist string[]
+---@field debug boolean
 
 ---@class HawtKeyHighlights
 ---@field HawtkeysMatchGreat vim.api.keyset.highlight | nil
@@ -29,6 +30,7 @@ local M = {}
 ---@field customMaps { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs } | nil
 ---@field highlights HawtKeyHighlights | nil
 ---@field lhsBlacklist string[] | nil
+---@field debug boolean | nil
 
 ---@type { [string] : TSKeyMapArgs | WhichKeyMapargs | LazyKeyMapArgs }
 local _defaultSet = {
@@ -66,6 +68,7 @@ local defaultConfig = {
 Þ is used internally by whickkey to map NOP functions for menu popup timeout
 ]]
     lhsBlacklist = { "<plug>", "Þ" },
+    debug = false,
 }
 
 local auGroup = vim.api.nvim_create_augroup("hawtkeys", { clear = true })

@@ -5,6 +5,18 @@ local utils = require("hawtkeys.utils")
 local hawtkeys = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
+local logger
+if hawtkeys.config.debug then
+    logger = require("plenary.log").new({
+        plugin = "hawtkeys",
+        level = "trace",
+    })
+else
+    logger = require("plenary.log").new({
+        plugin = "hawtkeys",
+        level = "warn",
+    })
+end
 
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
@@ -129,18 +141,23 @@ end
 ---@param filePath string
 ---@return HawtkeysKeyMapData[]
 local function find_maps_in_file(filePath)
+    logger.debug("Scanning file: " .. filePath)
     if scannedFiles[filePath] then
+        logger.debug("Already scanned file: " .. filePath)
         -- already scanned
         return {}
     end
     scannedFiles[filePath] = true
     --if not a lua file, return empty table
     if not string.match(filePath, "%.lua$") then
+        logger.debug("Not a lua file: " .. filePath)
         return {}
     end
     local fileContent = Path:new(filePath):read()
     local parser = vim.treesitter.get_string_parser(fileContent, "lua", {}) -- Get the Lua parser
+    logger.debug("Parsing file: " .. filePath)
     local tree = parser:parse()[1]:root()
+    logger.debug("Parsed file: " .. filePath)
     local tsKeymaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
