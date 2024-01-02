@@ -1,6 +1,14 @@
 ---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
 
+local function getTestPath()
+    if package.config:sub(1, 1) == "\\" then
+        return "tests\\minimal_init.lua"
+    else
+        return "tests/minimal_init.lua"
+    end
+end
+
 local MiniTest = require("mini.test")
 
 ---TODO: add search functionality tests (willothy)
@@ -10,7 +18,7 @@ describe("ui", function()
     local SearchBuf, SearchWin, ResultBuf, ResultWin, Namespace, prompt_extmark
 
     before_each(function()
-        child.restart({ "-u", "tests/minimal_init.lua" })
+        child.restart({ "-u", getTestPath() })
         child.lua([[require("hawtkeys").setup({})]])
     end)
 
