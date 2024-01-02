@@ -14,7 +14,7 @@ local MiniTest = require("mini.test")
 ---TODO: add search functionality tests (willothy)
 
 describe("ui", function()
-    local child = MiniTest.new_child_neovim()
+    local child = MiniTest.new_child_neovim({}, { connection_timeout = 30000 })
     local SearchBuf, SearchWin, ResultBuf, ResultWin, Namespace, prompt_extmark
 
     before_each(function()
