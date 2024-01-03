@@ -62,7 +62,7 @@ if vim.fn.isdirectory(mini_dir) == 0 then
     vim.fn.system({
         "git",
         "clone",
-        "https://github.com/echasnovski/mini.test",
+        "https://github.com/tris203/mini.test",
         mini_dir,
     })
 end
