@@ -6,7 +6,7 @@ local hawtkeys = require("hawtkeys")
 local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 local logger
-if hawtkeys.config.debug then
+if hawtkeys.config and hawtkeys.config.debug then
     logger = require("plenary.log").new({
         plugin = "hawtkeys",
         level = "trace",
