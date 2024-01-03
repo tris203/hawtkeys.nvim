@@ -1,6 +1,9 @@
 local M = {}
 
 local function tempdir(plugin)
+    if jit.os == "Windows" then
+        return "D:\\tmp\\" .. plugin
+    end
     return vim.loop.os_tmpdir() .. "/" .. plugin
 end
 
