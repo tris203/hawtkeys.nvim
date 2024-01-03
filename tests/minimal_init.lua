@@ -41,7 +41,6 @@ end
 
 local plenary_dir = os.getenv("PLENARY_DIR") or tempdir("plenary.nvim")
 local treesitter_dir = os.getenv("TREESITTER_DIR") or tempdir("nvim-treesitter")
-local mini_dir = os.getenv("MINI_DIR") or tempdir("mini-test")
 if vim.fn.isdirectory(plenary_dir) == 0 then
     vim.fn.system({
         "git",
@@ -58,20 +57,10 @@ if vim.fn.isdirectory(treesitter_dir) == 0 then
         treesitter_dir,
     })
 end
-if vim.fn.isdirectory(mini_dir) == 0 then
-    vim.fn.system({
-        "git",
-        "clone",
-        "https://github.com/tris203/mini.test",
-        mini_dir,
-    })
-end
 vim.opt.rtp:append(".")
 vim.opt.rtp:append(plenary_dir)
 vim.opt.rtp:append(treesitter_dir)
-vim.opt.rtp:append(mini_dir)
 require("plenary.busted")
-require("mini.test").setup()
 
 vim.cmd("runtime plugin/plenary.vim")
 vim.cmd("runtime plugin/treesitter.vim")
