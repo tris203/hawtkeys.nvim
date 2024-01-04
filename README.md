@@ -4,6 +4,7 @@
 It takes into consideration keyboard layout, easy-to-press combinations and memorable phrases, and excludes already mapped combinations to provide you with suggested keys for your commands
 
 ## 📦 Installation
+
 Installation instructions to follow, but as usual with package managers
 
 ```lua
@@ -12,6 +13,7 @@ return {
     config = true,
 }
 ```
+
 ## ❔Usage
 
 ### Searching New Keymaps
@@ -42,8 +44,8 @@ HawtkeysDupes
 
 It will show potential duplicate keymaps, where you have accidentally set the same key for two different things. This can be useful for tracking down issues with plugins not functioning correctly
 
-
 ## ⚙️ Config
+
 ```lua
 return {
     leader = " ", -- the key you want to use as the leader, default is space
@@ -87,7 +89,16 @@ return {
     },
 }
 ```
-The default config will get all keymaps using the ```vim.api.nvim_set_keymap``` and ```vim.keymap.set```.
+
+The default config will get all keymaps using the `vim.api.nvim_set_keymap` and `vim.keymap.set`.
+
+## Keyboard Layouts
+
+Currently supported keyboard layouts are:
+
+- qwerty
+- colemak
+- colemak-dh
 
 ## ✍️ Contributing
 
@@ -108,6 +119,6 @@ Outstanding items are currently in the TODO.md file.
 
 ### Pre-Push Hook
 
-There is a pre-push hook present in ```.githooks/pre-push.sh```. This can be symlinked to ```.git/hooks/pre-push```.
+There is a pre-push hook present in `.githooks/pre-push.sh`. This can be symlinked to `.git/hooks/pre-push`.
 
 This will ensure that the same checks that will be run in CI are run when you push.
