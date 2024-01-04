@@ -100,6 +100,10 @@ Currently supported keyboard layouts are:
 - colemak
 - colemak-dh
 
+We would welcome any PRs to add keyboard layouts.
+Thanks to
+@delinx [^colemak/colemak-dh]
+
 ## ✍️ Contributing
 
 Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
