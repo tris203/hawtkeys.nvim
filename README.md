@@ -101,8 +101,12 @@ Currently supported keyboard layouts are:
 - colemak-dh
 
 We would welcome any PRs to add keyboard layouts.
-Thanks to
-@delinx [^colemak/colemak-dh]
+
+Keyboard Contributors:
+
+- [@delinx](https://github.com/delinx) [^1]
+
+[^1]: colemak / colemak-dh
 
 ## ✍️ Contributing
 
