@@ -98,7 +98,8 @@ function M.find_duplicates(keymaps)
     for _, v in pairs(keymaps) do
         for _, v2 in pairs(keymaps) do
             if
-                v.lhs == v2.lhs
+                M.sanitise_modifier_keys(v.lhs)
+                    == M.sanitise_modifier_keys(v2.lhs)
                 and v.rhs ~= v2.rhs
                 and match_modes(v.mode or "n", v2.mode or "n")
             then
@@ -125,6 +126,16 @@ end
 function M.reduceHome(path)
     local reduced = path:gsub(vim.env.HOME, "~")
     return reduced
+end
+
+---@param lhs string
+---@return string
+function M.sanitise_modifier_keys(lhs)
+    --- to lower anything in < >
+    local santisedLhs = lhs:gsub("<[^>]*>", function(match)
+        return match:lower()
+    end)
+    return santisedLhs
 end
 
 return M

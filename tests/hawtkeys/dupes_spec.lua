@@ -38,6 +38,52 @@ describe("HawtkeysDupes", function()
     end)
 
     it(
+        "should detect duplicates with differing casing in the modifiers",
+        function()
+            local keymap = ts.find_maps_in_file(
+                "tests/hawtkeys/example_configs/duplicates_with_casing.lua"
+            )
+
+            eq("n", keymap[1].mode)
+            eq("<leader>t", keymap[1].lhs)
+
+            eq("n", keymap[2].mode)
+            eq("<Leader>t", keymap[2].lhs)
+
+            eq("n", keymap[3].mode)
+            eq("<C-a>", keymap[3].lhs)
+
+            eq("n", keymap[4].mode)
+            eq("<c-a>", keymap[4].lhs)
+
+            local dupes = util.find_duplicates(keymap)
+
+            eq("n", dupes["<leader>t"][1].mode)
+            eq("n", dupes["<leader>t"][2].mode)
+
+            eq("n", dupes["<C-a>"][1].mode)
+            eq("n", dupes["<c-a>"][1].mode)
+        end
+    )
+
+    it("should detected duplicates in non-modifier based keymaps", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/duplicates_no_modififers.lua"
+        )
+
+        eq("n", keymap[1].mode)
+        eq("gd", keymap[1].lhs)
+
+        eq("n", keymap[2].mode)
+        eq("gd", keymap[2].lhs)
+
+        local dupes = util.find_duplicates(keymap)
+
+        eq("n", dupes["gd"][1].mode)
+        eq("n", dupes["gd"][2].mode)
+    end)
+
+    it(
         "should detect duplicates with partial mode matches for multi-mode maps",
         function()
             local keymap = ts.find_maps_in_file(
