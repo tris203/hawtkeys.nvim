@@ -3,8 +3,6 @@
 ---@field package defaultConfig HawtKeyConfig
 local M = {}
 
----@alias HawtKeySupportedKeyboardLayouts "qwerty" | "dvorak"
-
 ---@class HawtKeyConfig
 ---@field leader string
 ---@field homerow number
