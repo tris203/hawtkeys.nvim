@@ -92,7 +92,7 @@ return {
 
 The default config will get all keymaps using the `vim.api.nvim_set_keymap` and `vim.keymap.set`.
 
-## Keyboard Layouts
+## ⌨️ Keyboard Layouts
 
 Currently supported keyboard layouts are:
 
