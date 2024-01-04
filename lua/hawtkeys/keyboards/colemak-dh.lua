@@ -38,7 +38,7 @@ return {
 -- https://colemakmods.github.io/mod-dh/
 -- NOTE: Angled mode is not accounted for since that would involve moving punctuation
 
-------1-2-3-4-5-6-7-8-9-10
+------1-2-3-4-5-6-7-8-9-0
 ---1- q w f p b j l u y
 ---2- a r s t g m n e i o
 ---3- z x c d v k h

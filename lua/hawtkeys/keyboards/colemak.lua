@@ -37,7 +37,7 @@ return {
 
 -- https://colemak.com/
 
-------1-2-3-4-5-6-7-8-9-10
+------1-2-3-4-5-6-7-8-9-0
 ---1- q w f p g j l u y
 ---2- a r s t d h n e i o
 ---3- z x c v b k m
