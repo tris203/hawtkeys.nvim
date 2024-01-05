@@ -131,7 +131,10 @@ local function find_matches(str)
 
     local find_mapping = function(maps, lhs)
         for _, value in ipairs(maps) do
-            if utils.sanitise_modifier_keys(value.lhs) == utils.sanitise_modifier_keys(lhs) then
+            if
+                utils.sanitise_modifier_keys(value.lhs)
+                == utils.sanitise_modifier_keys(lhs)
+            then
                 return { rhs = value.rhs, from_file = value.from_file }
             end
         end
