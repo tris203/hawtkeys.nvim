@@ -12,9 +12,8 @@ describe("Invalid Files", function()
         hawtkeys.setup({})
     end)
     it("doesnt error on invalid lua file", function()
-        local keymap = ts.find_maps_in_file(
-            "/invalid/path/to/file/that/doesnt/exist.lua"
-        )
+        local keymap =
+            ts.find_maps_in_file("/invalid/path/to/file/that/doesnt/exist.lua")
         eq(0, #keymap)
     end)
     it("doesnt error on a non lua file", function()
