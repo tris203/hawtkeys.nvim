@@ -132,9 +132,7 @@ end
 ---@return string
 function M.sanitise_modifier_keys(lhs)
     --- to lower anything in < >
-    local santisedLhs = lhs:gsub("<[^>]*>", function(match)
-        return match:lower()
-    end)
+    local santisedLhs = lhs:gsub("<[^>]*>", string.lower)
     return santisedLhs
 end
 
