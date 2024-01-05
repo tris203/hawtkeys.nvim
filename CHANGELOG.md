@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.3...v1.1.0) (2024-01-05)
+
+
+### Features
+
+* add colemak/colemak-dh support ([dbd92f0](https://github.com/tris203/hawtkeys.nvim/commit/dbd92f03a9ee71438c0035d007a81ef3df4a1f8c))
+* one usercommand + autocomplete ([#63](https://github.com/tris203/hawtkeys.nvim/issues/63)) ([1ced8d4](https://github.com/tris203/hawtkeys.nvim/commit/1ced8d4ec0c1e4b91b89c236ea068a3dc18d2888))
+* partial match for multi-mode maps in duplicates ([#57](https://github.com/tris203/hawtkeys.nvim/issues/57)) ([954b4d9](https://github.com/tris203/hawtkeys.nvim/commit/954b4d95c8f47d0d4c2102e14f799884957a1332))
+* **ui:** message on no dupes ([#65](https://github.com/tris203/hawtkeys.nvim/issues/65)) ([31f0a7f](https://github.com/tris203/hawtkeys.nvim/commit/31f0a7ffab395c415a08ce336df2ee27c135ec03))
+
+
+### Bug Fixes
+
+* capture more than two duplicates of a mapping ([954b4d9](https://github.com/tris203/hawtkeys.nvim/commit/954b4d95c8f47d0d4c2102e14f799884957a1332))
+* ignore casing in modifier keys ([#76](https://github.com/tris203/hawtkeys.nvim/issues/76)) ([f3a7ff1](https://github.com/tris203/hawtkeys.nvim/commit/f3a7ff166e6842cd2fd7ad0edb8f07d26adb60b7))
+* lazy mapped keys with functions ([#58](https://github.com/tris203/hawtkeys.nvim/issues/58)) ([ee2374e](https://github.com/tris203/hawtkeys.nvim/commit/ee2374ecb5125b580e0158d71957f5dda9a49d5a))
+
 ## [1.0.3](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.2...v1.0.3) (2023-12-28)
 
 
