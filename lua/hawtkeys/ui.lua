@@ -326,8 +326,8 @@ M.show_dupes = function()
     local dupes = showDuplicates.show_duplicates()
     local pattern = "%s : %s"
     for i, data in ipairs(dupes) do
-        local filename1 = utils.reduceHome(data.file1)
-        local filename2 = utils.reduceHome(data.file2)
+        local filename1 = utils.reduceHome(data.map1.from_file)
+        local filename2 = utils.reduceHome(data.map2.from_file)
         local line = pattern:format(filename1, filename2)
 
         local l2 = data.key

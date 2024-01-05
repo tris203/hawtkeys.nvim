@@ -4,10 +4,8 @@ local tsSearch = require("hawtkeys.ts")
 
 ---@class HawtkeysDuplicatesData
 ---@field key string
----@field file1 string
----@field file2 string
----
----TODO: Make this return a HawtkeysKeyMapData instead of strings
+---@field map1 HawtkeysKeyMapData
+---@field map2 HawtkeysKeyMapData
 
 ---@return HawtkeysDuplicatesData[]
 function M.show_duplicates()
@@ -18,8 +16,8 @@ function M.show_duplicates()
         ---@type HawtkeysDuplicatesData
         local object = {
             key = index,
-            file1 = data[1].from_file,
-            file2 = data[2].from_file,
+            map1 = data[1],
+            map2 = data[2],
         }
         table.insert(resultTable, object)
     end
