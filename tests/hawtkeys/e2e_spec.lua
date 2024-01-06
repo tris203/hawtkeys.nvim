@@ -40,7 +40,6 @@ describe("file searching", function()
                 notMatch = notMatch + 1
             end
         end
-        print(vim.inspect(keymaps))
         eq(vim.tbl_count(keymaps), notMatch + 1)
     end)
 
@@ -54,14 +53,14 @@ describe("file searching", function()
         for _, v in ipairs(keymaps) do
             if
                 vim.deep_equal(v, {
-                    from_file = vim.fn.stdpath("config") .. "/e2e_config.lua",
+                    from_file = config_file:absolute(),
                     lhs = "<leader>example",
                     mode = "n",
                     rhs = "<cmd>echo 'Example'<cr>",
                 })
             then
                 eq(v, {
-                    from_file = vim.fn.stdpath("config") .. "/e2e_config.lua",
+                    from_file = config_file:absolute(),
                     lhs = "<leader>example",
                     mode = "n",
                     rhs = "<cmd>echo 'Example'<cr>",
