@@ -445,11 +445,6 @@ local function get_keymaps_from_vim()
     return vimKeymaps
 end
 
----@return string[]
-local function get_runtime_path()
-    return vim.api.nvim_list_runtime_paths()
-end
-
 ---@return HawtkeysKeyMapData[]
 function M.get_all_keymaps()
     local returnKeymaps
@@ -470,11 +465,11 @@ function M.get_all_keymaps()
         end
     else
         local paths = vim.fn.stdpath("config")
+        if not paths then
+            return {}
+        end
         if type(paths) == "string" then
             paths = { paths }
-        end
-        if not paths then
-            paths = get_runtime_path()
         end
         for _, path in ipairs(paths) do
             -- if string.match(path, "%.config") then
