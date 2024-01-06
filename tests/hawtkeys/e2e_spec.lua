@@ -4,16 +4,16 @@ local ts = require("hawtkeys.ts")
 local path = require("plenary.path")
 
 local sep = (function()
-  if jit then
-    local os = string.lower(jit.os)
-    if os ~= "windows" then
-      return "/"
+    if jit then
+        local os = string.lower(jit.os)
+        if os ~= "windows" then
+            return "/"
+        else
+            return "\\"
+        end
     else
-      return "\\"
+        return package.config:sub(1, 1)
     end
-  else
-    return package.config:sub(1, 1)
-  end
 end)()
 
 local function copy_configs_to_stdpath_config()
