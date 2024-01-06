@@ -5,6 +5,7 @@ local ts = require("hawtkeys.ts")
 
 local function copy_configs_to_stdpath_config()
     local config_dir = vim.fn.stdpath("config")
+    vim.fn.mkdir(config_dir, "p")
     vim.fn.writefile(
         vim.fn.readfile("tests/hawtkeys/example_configs/e2e_config.lua"),
         config_dir .. "/e2e_config.lua"
