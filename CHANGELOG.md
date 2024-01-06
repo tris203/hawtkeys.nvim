@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/tris203/hawtkeys.nvim/compare/v1.1.0...v1.1.1) (2024-01-06)
+
+
+### Bug Fixes
+
+* ensure path is file before reading ([#79](https://github.com/tris203/hawtkeys.nvim/issues/79)) ([b6463cb](https://github.com/tris203/hawtkeys.nvim/commit/b6463cbf3343682fd79e6324be57b1079661806e))
+
 ## [1.1.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.3...v1.1.0) (2024-01-05)
 
 
