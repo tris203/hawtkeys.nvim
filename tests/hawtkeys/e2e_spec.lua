@@ -1,6 +1,7 @@
 ---@diagnostic disable-next-line: undefined-field
 local eq = assert.are.same
 local ts = require("hawtkeys.ts")
+local path = require("plenary.path")
 
 local function copy_configs_to_stdpath_config()
     local config_dir = vim.fn.stdpath("config")
@@ -43,6 +44,9 @@ describe("file searching", function()
     end)
 
     it("can detect a keymap from a file", function()
+        local config_file =
+            path:new(vim.fn.stdpath("config") .. "/e2e_config.lua")
+        eq(true, config_file:is_file())
         local notMatch = 0
         local keymaps = ts.get_all_keymaps()
 
