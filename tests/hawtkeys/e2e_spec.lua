@@ -82,8 +82,6 @@ describe("file searching", function()
                 notMatch = notMatch + 1
             end
         end
-        print(vim.inspect(keymaps))
-        print(config_file:absolute())
         eq(vim.tbl_count(keymaps), notMatch + 1)
     end)
 
