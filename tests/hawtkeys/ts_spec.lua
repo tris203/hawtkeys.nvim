@@ -5,6 +5,25 @@ local eq = assert.are.same
 ---@diagnostic disable-next-line: undefined-field
 local falsy = assert.falsy
 
+describe("Invalid Files", function()
+    before_each(function()
+        require("plenary.reload").reload_module("hawtkeys")
+        ts.reset_scanned_files()
+        hawtkeys.setup({})
+    end)
+    it("doesnt error on invalid lua file", function()
+        local keymap =
+            ts.find_maps_in_file("/invalid/path/to/file/that/doesnt/exist.lua")
+        eq(0, #keymap)
+    end)
+    it("doesnt error on a non lua file", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/invalid_file.txt"
+        )
+        eq(0, #keymap)
+    end)
+end)
+
 describe("Uninstalled plugins", function()
     before_each(function()
         require("plenary.reload").reload_module("hawtkeys")
