@@ -477,7 +477,7 @@ function M.get_all_keymaps()
             paths = get_runtime_path()
         end
         for _, path in ipairs(paths) do
-            if string.match(path, "%.config") then
+            -- if string.match(path, "%.config") then
                 local files = find_files(path)
                 for _, file in ipairs(files) do
                     local file_keymaps = find_maps_in_file(file)
@@ -485,7 +485,7 @@ function M.get_all_keymaps()
                         table.insert(keymaps, keymap)
                     end
                 end
-            end
+            -- end
         end
     end
 
