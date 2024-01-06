@@ -33,7 +33,7 @@ local tsQuery = require("nvim-treesitter.query")
 ---@field method WhichKeyMethods
 
 ---@class LazyKeyMapArgs
----@field method LazyMethods
+---@field method LazyMethodsts
 
 ---@type table<string, boolean>
 local scannedFiles = {}
@@ -469,7 +469,13 @@ function M.get_all_keymaps()
             end
         end
     else
-        local paths = get_runtime_path()
+        local paths = vim.fn.stdpath("config")
+        if type(paths) == "string" then
+            paths = { paths }
+        end
+        if not paths then
+            paths = get_runtime_path()
+        end
         for _, path in ipairs(paths) do
             if string.match(path, "%.config") then
                 local files = find_files(path)
