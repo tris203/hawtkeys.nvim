@@ -40,6 +40,7 @@ describe("file searching", function()
                 notMatch = notMatch + 1
             end
         end
+        print(vim.inspect(keymaps))
         eq(vim.tbl_count(keymaps), notMatch + 1)
     end)
 
