@@ -138,7 +138,11 @@ local function find_maps_in_file(filePath)
     if not string.match(filePath, "%.lua$") then
         return {}
     end
-    local fileContent = Path:new(filePath):read()
+    local path = Path:new(filePath)
+    if not path:is_file() then
+        return {}
+    end
+    local fileContent = path:read()
     local parser = vim.treesitter.get_string_parser(fileContent, "lua", {}) -- Get the Lua parser
     local tree = parser:parse()[1]:root()
     local tsKeymaps = {}
