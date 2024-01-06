@@ -3,6 +3,19 @@ local eq = assert.are.same
 local ts = require("hawtkeys.ts")
 local path = require("plenary.path")
 
+local sep = (function()
+  if jit then
+    local os = string.lower(jit.os)
+    if os ~= "windows" then
+      return "/"
+    else
+      return "\\"
+    end
+  else
+    return package.config:sub(1, 1)
+  end
+end)()
+
 local function copy_configs_to_stdpath_config()
     local config_dir = vim.fn.stdpath("config")
     vim.fn.mkdir(config_dir, "p")
@@ -45,7 +58,7 @@ describe("file searching", function()
 
     it("can detect a keymap from a file", function()
         local config_file =
-            path:new(vim.fn.stdpath("config") .. "/e2e_config.lua")
+            path:new(vim.fn.stdpath("config") .. sep .. "e2e_config.lua")
         eq(true, config_file:is_file())
         local notMatch = 0
         local keymaps = ts.get_all_keymaps()
