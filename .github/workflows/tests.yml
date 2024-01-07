@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os}}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         nvim-versions: ['stable', 'nightly']
