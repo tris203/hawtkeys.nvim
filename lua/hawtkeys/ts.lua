@@ -464,23 +464,18 @@ function M.get_all_keymaps()
             end
         end
     else
-        local paths = vim.fn.stdpath("config")
-        if not paths then
+        local path = vim.fn.stdpath("config") --[[@as string]]
+        -- vim.fn.stdpath("config") returns string
+        -- https://neovim.io/doc/user/builtin.html#stdpath()
+        if not path then
             return {}
         end
-        if type(paths) == "string" then
-            paths = { paths }
-        end
-        for _, path in ipairs(paths) do
-            -- if string.match(path, "%.config") then
-            local files = find_files(path)
-            for _, file in ipairs(files) do
-                local file_keymaps = find_maps_in_file(file)
-                for _, keymap in ipairs(file_keymaps) do
-                    table.insert(keymaps, keymap)
-                end
+        local files = find_files(path)
+        for _, file in ipairs(files) do
+            local file_keymaps = find_maps_in_file(file)
+            for _, keymap in ipairs(file_keymaps) do
+                table.insert(keymaps, keymap)
             end
-            -- end
         end
     end
 

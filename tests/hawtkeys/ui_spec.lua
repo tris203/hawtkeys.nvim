@@ -18,18 +18,14 @@ describe("ui", function()
             vim.cmd([[bufdo! bwipeout]])
             require("hawtkeys").setup({})
             vim.cmd([[lua require("hawtkeys.ui").show()]])
+            local ui = require("hawtkeys.ui")
             SearchBuf, SearchWin, ResultBuf, ResultWin, Namespace, prompt_extmark =
-                unpack((function()
-                    local ui = require("hawtkeys.ui")
-                    return {
-                        ui.SearchBuf,
-                        ui.SearchWin,
-                        ui.ResultBuf,
-                        ui.ResultWin,
-                        ui.Namespace,
-                        ui.prompt_extmark,
-                    }
-                end)())
+                ui.SearchBuf,
+                ui.SearchWin,
+                ui.ResultBuf,
+                ui.ResultWin,
+                ui.Namespace,
+                ui.prompt_extmark
         end)
 
         it("should show the search UI", function()
@@ -75,14 +71,9 @@ describe("ui", function()
             vim.cmd([[bufdo! bwipeout]])
             require("hawtkeys").setup({})
             vim.cmd([[lua require("hawtkeys.ui").show_all()]])
-            ResultBuf, ResultWin, Namespace = unpack((function()
-                local ui = require("hawtkeys.ui")
-                return {
-                    ui.ResultBuf,
-                    ui.ResultWin,
-                    ui.Namespace,
-                }
-            end)())
+            local ui = require("hawtkeys.ui")
+            ResultBuf, ResultWin, Namespace =
+                ui.ResultBuf, ui.ResultWin, ui.Namespace
         end)
 
         it("should show the all UI", function()
@@ -101,14 +92,9 @@ describe("ui", function()
     describe("dupes", function()
         before_each(function()
             vim.cmd([[lua require("hawtkeys.ui").show_dupes()]])
-            ResultBuf, ResultWin, Namespace = unpack((function()
-                local ui = require("hawtkeys.ui")
-                return {
-                    ui.ResultBuf,
-                    ui.ResultWin,
-                    ui.Namespace,
-                }
-            end)())
+            local ui = require("hawtkeys.ui")
+            ResultBuf, ResultWin, Namespace =
+                ui.ResultBuf, ui.ResultWin, ui.Namespace
         end)
 
         it("should show the duplicates UI", function()
