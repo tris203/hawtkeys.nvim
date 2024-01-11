@@ -33,7 +33,7 @@ describe("Uninstalled plugins", function()
                 ["lazy"] = {
                     method = "lazy",
                 },
-                ["whichkey.register"] = {
+                ["wk.register"] = {
                     method = "which_key",
                 },
             },
@@ -45,7 +45,7 @@ describe("Uninstalled plugins", function()
             return require("which-key")
         end)
         local keymapWhichKey = ts.find_maps_in_file(
-            "tests/hawtkeys/example_configs/which-key.register_keymap.lua"
+            "tests/hawtkeys/example_configs/which-key.register_keymap_method1.lua"
         )
         local messages = vim.api.nvim_exec2("messages", { output = true })
         eq(false, ok)
