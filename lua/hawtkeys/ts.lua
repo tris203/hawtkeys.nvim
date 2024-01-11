@@ -344,7 +344,7 @@ local function find_maps_in_file(filePath)
                 local strObj =
                     vim.treesitter.get_node_text(node.node, fileContent)
                 local ok, tableObj = pcall(function()
-                    --Remove wrapping parens issue #81
+                    --Remove wrapping parens and wrap in table and unpack - issue #81
                     strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
                     return loadstring("return {" .. strObj .. "}")()
                 end)
