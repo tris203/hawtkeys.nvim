@@ -1,7 +1,7 @@
-local whichkey = require("which-key")
+local wk = require("which-key")
 
-whichkey.register({
-    ["<leader>"] = {
+wk.register({
+    ["<leader>w"] = {
         name = "test",
         ["3"] = { ':lua print("hello")<CR>', "hello" },
     },

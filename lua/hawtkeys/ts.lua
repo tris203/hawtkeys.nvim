@@ -344,6 +344,8 @@ local function find_maps_in_file(filePath)
                 local strObj =
                     vim.treesitter.get_node_text(node.node, fileContent)
                 local ok, tableObj = pcall(function()
+                    --Remove wrapping parens issue #81
+                    strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
                     return loadstring("return " .. strObj)()
                 end)
                 if not ok then
@@ -354,6 +356,7 @@ local function find_maps_in_file(filePath)
                     break
                 end
                 local wkMapping = which_key.parse(tableObj)
+                print(vim.inspect(wkMapping))
 
                 for _, mapping in ipairs(wkMapping) do
                     local map = {

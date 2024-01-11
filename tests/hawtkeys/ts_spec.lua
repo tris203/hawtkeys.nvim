@@ -170,21 +170,49 @@ describe("Which Key Managed Maps", function()
         ts.reset_scanned_files()
         hawtkeys.setup({
             customMaps = {
-                ["whichkey.register"] = {
+                ["wk.register"] = {
                     method = "which_key",
                 },
             },
         })
     end)
 
-    it("extract whichkey.register() keymap", function()
+    it("extract whichkey method 1", function()
         local keymap = ts.find_maps_in_file(
-            "tests/hawtkeys/example_configs/which-key.register_keymap.lua"
+            "tests/hawtkeys/example_configs/which-key.register_keymap_method1.lua"
         )
         eq("n", keymap[1].mode)
-        eq("<leader>3", keymap[1].lhs)
+        eq("<leader>wo", keymap[1].lhs)
         eq(':lua print("hello")<CR>', keymap[1].rhs)
     end)
+
+    it("extract whichkey method 2", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap_method2.lua"
+        )
+        eq("n", keymap[1].mode)
+        eq("<leader>wt", keymap[1].lhs)
+        eq(':lua print("hello")<CR>', keymap[1].rhs)
+    end)
+
+    it("extract whichkey method 3", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap_method3.lua"
+        )
+        eq("n", keymap[1].mode)
+        eq("<leader>w3", keymap[1].lhs)
+        eq(':lua print("hello")<CR>', keymap[1].rhs)
+    end)
+
+    it("extract whichkey method 4", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap_method4.lua"
+        )
+        eq("n", keymap[1].mode)
+        eq("<leader>wf", keymap[1].lhs)
+        eq(':lua print("hello")<CR>', keymap[1].rhs)
+    end)
+
 end)
 
 describe("Lazy Managed Plugins", function()
