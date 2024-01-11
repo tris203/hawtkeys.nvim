@@ -212,7 +212,6 @@ describe("Which Key Managed Maps", function()
         eq("<leader>wf", keymap[1].lhs)
         eq(':lua print("hello")<CR>', keymap[1].rhs)
     end)
-
 end)
 
 describe("Lazy Managed Plugins", function()
