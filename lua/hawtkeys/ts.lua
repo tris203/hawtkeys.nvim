@@ -344,16 +344,19 @@ local function find_maps_in_file(filePath)
                 local strObj =
                     vim.treesitter.get_node_text(node.node, fileContent)
                 local ok, tableObj = pcall(function()
-                    return loadstring("return " .. strObj)()
+                    --Remove wrapping parens and wrap in table and unpack - issue #81
+                    strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
+                    return loadstring("return {" .. strObj .. "}")()
                 end)
                 if not ok then
                     vim.notify_once(
                         "Error parsing which-key table",
                         vim.log.levels.ERROR
                     )
+                    vim.notify(strObj, vim.log.levels.ERROR)
                     break
                 end
-                local wkMapping = which_key.parse(tableObj)
+                local wkMapping = which_key.parse(unpack(tableObj))
 
                 for _, mapping in ipairs(wkMapping) do
                     local map = {
