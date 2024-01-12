@@ -1,13 +1,13 @@
-local wk = require('which-key')
+local wk = require("which-key")
 
 local T = {}
 
 T.say_hello = function()
-  print('hello')
+    print("hello")
 end
 
-T.name = 'say hello issue81'
+T.name = "say hello issue81"
 
 wk.register({
-  ['81'] = { T.say_hello, T.name },
-}, { prefix = '<leader>' })
+    ["81"] = { T.say_hello, T.name },
+}, { prefix = "<leader>" })
