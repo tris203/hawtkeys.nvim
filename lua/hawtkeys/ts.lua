@@ -353,6 +353,7 @@ local function find_maps_in_file(filePath)
                         "Error parsing which-key table",
                         vim.log.levels.ERROR
                     )
+                    vim.notify(strObj, vim.log.levels.ERROR)
                     break
                 end
                 local wkMapping = which_key.parse(unpack(tableObj))
