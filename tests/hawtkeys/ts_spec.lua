@@ -214,9 +214,8 @@ describe("Which Key Managed Maps", function()
     end)
 
     it("can extract keymaps from issue81", function()
-        local keymap = ts.find_maps_in_file(
-            "tests/hawtkeys/example_configs/issue81.lua"
-        )
+        local keymap =
+            ts.find_maps_in_file("tests/hawtkeys/example_configs/issue81.lua")
         eq("n", keymap[1].mode)
         eq("<leader>1", keymap[1].lhs)
         eq(':lua print("hello")<CR>', keymap[1].rhs)
