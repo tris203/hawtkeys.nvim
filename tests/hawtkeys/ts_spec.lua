@@ -221,6 +221,16 @@ describe("Which Key Managed Maps", function()
         eq("<leader>81", keymap[1].lhs)
         eq("Function uses out of scope variables", keymap[1].rhs)
     end)
+
+    it("can extract keymaps containing dot indexed out of scope variables", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap_out_of_scope_dot_index_variables.lua"
+        )
+        print(vim.inspect(keymap))
+        eq("n", keymap[1].mode)
+        eq("<leader>81dot", keymap[1].lhs)
+        eq("Function uses out of scope variables", keymap[1].rhs)
+    end)
 end)
 
 describe("Lazy Managed Plugins", function()
