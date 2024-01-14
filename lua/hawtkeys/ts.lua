@@ -344,9 +344,20 @@ local function find_maps_in_file(filePath)
                 local strObj =
                     vim.treesitter.get_node_text(node.node, fileContent)
                 local ok, tableObj = pcall(function()
+                    local env = setmetatable({}, {
+                        __index = function()
+                            return "unknown"
+                        end,
+                    })
                     --Remove wrapping parens and wrap in table and unpack - issue #81
                     strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
-                    return loadstring("return {" .. strObj .. "}")()
+                    local func = loadstring("return {" .. strObj .. "}")
+                    if not func then
+                        return {}
+                    end
+                    setfenv(func, env)
+                    local obj = func()
+                    return obj
                 end)
                 if not ok then
                     vim.notify_once(
@@ -354,11 +365,13 @@ local function find_maps_in_file(filePath)
                         vim.log.levels.ERROR
                     )
                     vim.notify(strObj, vim.log.levels.ERROR)
-                    break
                 end
                 local wkMapping = which_key.parse(unpack(tableObj))
 
                 for _, mapping in ipairs(wkMapping) do
+                    if mapping.cmd == "unknown" then
+                        mapping.cmd = "Function uses out of scope variables"
+                    end
                     local map = {
                         mode = mapping.mode,
                         lhs = mapping.prefix,

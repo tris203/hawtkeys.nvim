@@ -213,12 +213,13 @@ describe("Which Key Managed Maps", function()
         eq(':lua print("hello")<CR>', keymap[1].rhs)
     end)
 
-    it("can extract keymaps from issue81", function()
-        local keymap =
-            ts.find_maps_in_file("tests/hawtkeys/example_configs/issue81.lua")
+    it("can extract keymaps containing out of scope variables", function()
+        local keymap = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.register_keymap_out_of_scope_variables.lua"
+        )
         eq("n", keymap[1].mode)
-        eq("<leader>1", keymap[1].lhs)
-        eq(':lua print("hello")<CR>', keymap[1].rhs)
+        eq("<leader>81", keymap[1].lhs)
+        eq("Function uses out of scope variables", keymap[1].rhs)
     end)
 end)
 
