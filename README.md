@@ -117,6 +117,10 @@ Keyboard Contributors:
 
 [^1]: colemak / colemak-dh
 
+## 💻 Supported Versions
+
+This plugin supports stable and nightly. >0.9 at the time of writing.
+
 ## ✍️ Contributing
 
 Contributions are what makes the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
