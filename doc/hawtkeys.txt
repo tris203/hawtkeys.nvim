@@ -8,6 +8,7 @@ Table of Contents                                 *hawtkeys-table-of-contents*
   - Usage                                       |hawtkeys-hawtkeys.nvim-usage|
   - Config                                     |hawtkeys-hawtkeys.nvim-config|
   - Keyboard Layouts                 |hawtkeys-hawtkeys.nvim-keyboard-layouts|
+  - Supported Versions             |hawtkeys-hawtkeys.nvim-supported-versions|
   - Contributing                         |hawtkeys-hawtkeys.nvim-contributing|
 
 ==============================================================================
@@ -140,6 +141,11 @@ We would welcome any PRs to add keyboard layouts.
 Keyboard Contributors:
 
 - @delinx <https://github.com/delinx> 
+
+
+SUPPORTED VERSIONS                 *hawtkeys-hawtkeys.nvim-supported-versions*
+
+This plugin supports stable and nightly. >0.9 at the time of writing.
 
 
 CONTRIBUTING                             *hawtkeys-hawtkeys.nvim-contributing*
