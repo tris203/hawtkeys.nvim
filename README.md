@@ -114,8 +114,10 @@ We would welcome any PRs to add keyboard layouts.
 Keyboard Contributors:
 
 - [@delinx](https://github.com/delinx) [^1]
+- [@tariks](https://github.com/tariks) [^2]
 
 [^1]: colemak / colemak-dh
+[^2]: Dvorak
 
 ## 💻 Supported Versions
 
