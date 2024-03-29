@@ -1,4 +1,3 @@
-
 local layout = {
     ["'"] = { finger = 1, row = 1, col = 1 },
     [","] = { finger = 2, row = 1, col = 2 },
