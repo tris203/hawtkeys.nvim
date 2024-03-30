@@ -448,11 +448,6 @@ local function get_keymaps_from_vim()
     return vimKeymaps
 end
 
----@return string[]
-local function get_runtime_path()
-    return vim.api.nvim_list_runtime_paths()
-end
-
 ---@return HawtkeysKeyMapData[]
 function M.get_all_keymaps()
     local returnKeymaps
@@ -472,16 +467,17 @@ function M.get_all_keymaps()
             end
         end
     else
-        local paths = get_runtime_path()
-        for _, path in ipairs(paths) do
-            if string.match(path, "%.config") then
-                local files = find_files(path)
-                for _, file in ipairs(files) do
-                    local file_keymaps = find_maps_in_file(file)
-                    for _, keymap in ipairs(file_keymaps) do
-                        table.insert(keymaps, keymap)
-                    end
-                end
+        local path = vim.fn.stdpath("config") --[[@as string]]
+        -- vim.fn.stdpath("config") returns string
+        -- https://neovim.io/doc/user/builtin.html#stdpath()
+        if not path then
+            return {}
+        end
+        local files = find_files(path)
+        for _, file in ipairs(files) do
+            local file_keymaps = find_maps_in_file(file)
+            for _, keymap in ipairs(file_keymaps) do
+                table.insert(keymaps, keymap)
             end
         end
     end
