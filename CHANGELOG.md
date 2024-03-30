@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.2.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.1.0...v1.2.0) (2024-03-30)
+
+
+### Features
+
+* dvorak support ([#88](https://github.com/tris203/hawtkeys.nvim/issues/88)) ([e1b40ff](https://github.com/tris203/hawtkeys.nvim/commit/e1b40ffd02904c6a5d62a1110a7342783b6bf161))
+* Windows Support ([#68](https://github.com/tris203/hawtkeys.nvim/issues/68)) ([edbcb02](https://github.com/tris203/hawtkeys.nvim/commit/edbcb0248e1f382aa5547a04c945ad5dcfe34917))
+
+
+### Bug Fixes
+
+* ensure path is file before reading ([#79](https://github.com/tris203/hawtkeys.nvim/issues/79)) ([b6463cb](https://github.com/tris203/hawtkeys.nvim/commit/b6463cbf3343682fd79e6324be57b1079661806e))
+* support all whichkey methods ([#82](https://github.com/tris203/hawtkeys.nvim/issues/82)) ([e602132](https://github.com/tris203/hawtkeys.nvim/commit/e6021324cc972b7fdf23152e86077f619491ce22))
+
 ## [1.1.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.0.3...v1.1.0) (2024-01-05)
 
 
