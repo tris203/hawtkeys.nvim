@@ -108,6 +108,7 @@ Currently supported keyboard layouts are:
 - qwerty
 - colemak
 - colemak-dh
+- dvorak
 
 We would welcome any PRs to add keyboard layouts.
 
