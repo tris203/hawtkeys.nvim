@@ -3,7 +3,6 @@ local Path = require("plenary.path")
 local scan = require("plenary.scandir")
 local utils = require("hawtkeys.utils")
 local hawtkeys = require("hawtkeys")
-local ts = require("nvim-treesitter.compat")
 local tsQuery = require("nvim-treesitter.query")
 
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
@@ -148,7 +147,7 @@ local function find_maps_in_file(filePath)
     local tsKeymaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dotIndexExpressionQuery = ts.parse_query(
+    local dotIndexExpressionQuery = vim.treesitter.query.parse(
         "lua",
         build_dot_index_expression_query(hawtkeys.config.keyMapSet)
     )
@@ -235,7 +234,7 @@ local function find_maps_in_file(filePath)
         end
     end
 
-    local functionCallQuery = ts.parse_query(
+    local functionCallQuery = vim.treesitter.query.parse(
         "lua",
         build_function_call_query(hawtkeys.config.keyMapSet)
     )
@@ -323,8 +322,10 @@ local function find_maps_in_file(filePath)
         end
     end
 
-    local whichKeyQuery =
-        ts.parse_query("lua", build_which_key_query(hawtkeys.config.keyMapSet))
+    local whichKeyQuery = vim.treesitter.query.parse(
+        "lua",
+        build_which_key_query(hawtkeys.config.keyMapSet)
+    )
 
     for match in
         tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)
