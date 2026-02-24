@@ -124,6 +124,42 @@ local function find_files(dir)
     return files
 end
 
+---Recursively parse a which-key v1 register() spec table into flat keymap entries.
+---@param tbl table
+---@param prefix string
+---@param results HawtkeysKeyMapData[]
+---@return HawtkeysKeyMapData[]
+local function parse_wk_v1(tbl, prefix, results)
+    if type(tbl) ~= "table" then
+        return results
+    end
+    -- Leaf: first numeric element is the rhs
+    if type(tbl[1]) == "string" and prefix ~= "" then
+        table.insert(results, {
+            mode = type(tbl.mode) == "string" and tbl.mode or "n",
+            lhs = prefix,
+            rhs = tbl[1],
+        })
+        return results
+    end
+    -- Node: iterate over string keys and recurse
+    local skip = {
+        name = true,
+        mode = true,
+        noremap = true,
+        silent = true,
+        desc = true,
+        buffer = true,
+        remap = true,
+    }
+    for k, v in pairs(tbl) do
+        if type(k) == "string" and not skip[k] and type(v) == "table" then
+            parse_wk_v1(v, prefix .. k, results)
+        end
+    end
+    return results
+end
+
 ---@param filePath string
 ---@return HawtkeysKeyMapData[]
 local function find_maps_in_file(filePath)
@@ -310,9 +346,7 @@ local function find_maps_in_file(filePath)
 
     for id, node in whichKeyQuery:iter_captures(tree, fileContent, 0, -1) do
         if whichKeyQuery.captures[id] == "args" then
-            local wkLoaded, which_key = pcall(function()
-                return require("which-key.mappings")
-            end)
+            local wkLoaded = pcall(require, "which-key")
             if not wkLoaded then
                 vim.notify_once(
                     "Which Key Mappings require which-key to be installed",
@@ -335,21 +369,16 @@ local function find_maps_in_file(filePath)
                 vim.notify(strObj, vim.log.levels.ERROR)
                 break
             end
-            -- Replicate wk.register() behaviour: merge opts (tableObj[2]) into
-            -- spec (tableObj[1]) and parse with version=1 for the v1 format
-            local spec = vim.tbl_extend("force", tableObj[1], tableObj[2] or {})
-            local wkMapping = which_key.parse(spec, { version = 1 })
-
-            for _, mapping in ipairs(wkMapping) do
-                if mapping.lhs and mapping.rhs then
-                    local map = {
-                        mode = mapping.mode,
-                        lhs = mapping.lhs,
-                        rhs = mapping.rhs,
-                        from_file = filePath,
-                    }
-                    table.insert(tsKeymaps, map)
-                end
+            local opts = tableObj[2] or {}
+            local prefix = opts.prefix or ""
+            local wkMappings = parse_wk_v1(tableObj[1], prefix, {})
+            for _, mapping in ipairs(wkMappings) do
+                table.insert(tsKeymaps, {
+                    mode = mapping.mode,
+                    lhs = mapping.lhs,
+                    rhs = mapping.rhs,
+                    from_file = filePath,
+                })
             end
         end
     end
