@@ -214,6 +214,98 @@ describe("Which Key Managed Maps", function()
     end)
 end)
 
+describe("Which Key v3 add() Managed Maps", function()
+    before_each(function()
+        require("plenary.reload").reload_module("hawtkeys")
+        require("tests.minimal_init").loadWhichKey()
+        ts.reset_scanned_files()
+        hawtkeys.setup({
+            customMaps = {
+                ["wk.add"] = {
+                    method = "which_key",
+                },
+            },
+        })
+    end)
+
+    it("extract whichkey v3 add method basic mappings", function()
+        local keymaps = ts.find_maps_in_file(
+            "tests/hawtkeys/example_configs/which-key.add_keymap_v3_method1.lua"
+        )
+        -- Should extract ff, fb (fn and f1 are skipped - fn has no rhs, f1 is hidden)
+        eq(2, #keymaps)
+
+        -- Find the mappings
+        local ff_map = nil
+        local fb_map = nil
+        for _, map in ipairs(keymaps) do
+            if map.lhs == "<leader>ff" then
+                ff_map = map
+            elseif map.lhs == "<leader>fb" then
+                fb_map = map
+            end
+        end
+
+        -- Check <leader>ff mapping
+        eq("n", ff_map.mode)
+        eq("<leader>ff", ff_map.lhs)
+        eq("<cmd>Telescope find_files<cr>", ff_map.rhs)
+
+        -- Check <leader>fb mapping (function becomes <function>)
+        eq("n", fb_map.mode)
+        eq("<leader>fb", fb_map.lhs)
+        eq("<function>", fb_map.rhs)
+    end)
+
+    it(
+        "extract whichkey v3 add method with multi-mode nested mappings",
+        function()
+            local keymaps = ts.find_maps_in_file(
+                "tests/hawtkeys/example_configs/which-key.add_keymap_v3_method2.lua"
+            )
+            -- Should extract ga, gc, q, w (4 mappings total)
+            eq(4, #keymaps)
+
+            -- Find the mappings
+            local ga_map = nil
+            local gc_map = nil
+            local q_map = nil
+            local w_map = nil
+            for _, map in ipairs(keymaps) do
+                if map.lhs == "<leader>ga" then
+                    ga_map = map
+                elseif map.lhs == "<leader>gc" then
+                    gc_map = map
+                elseif map.lhs == "<leader>q" then
+                    q_map = map
+                elseif map.lhs == "<leader>w" then
+                    w_map = map
+                end
+            end
+
+            -- Check <leader>ga mapping
+            eq("n", ga_map.mode)
+            eq("<leader>ga", ga_map.lhs)
+            eq(":lua print('git add')<CR>", ga_map.rhs)
+
+            -- Check <leader>gc mapping
+            eq("n", gc_map.mode)
+            eq("<leader>gc", gc_map.lhs)
+            eq(":lua print('git commit')<CR>", gc_map.rhs)
+
+            -- Check <leader>q mapping (inherited multi-mode)
+            eq({ "n", "v" }, q_map.mode)
+            eq("<leader>q", q_map.lhs)
+            eq("<cmd>q<cr>", q_map.rhs)
+
+            -- Check <leader>w mapping (inherited multi-mode)
+            eq({ "n", "v" }, w_map.mode)
+            eq("<leader>w", w_map.lhs)
+            eq("<cmd>w<cr>", w_map.rhs)
+        end
+    )
+end)
+
 describe("Lazy Managed Plugins", function()
     before_each(function()
         require("plenary.reload").reload_module("hawtkeys")

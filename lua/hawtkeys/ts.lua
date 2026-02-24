@@ -160,6 +160,64 @@ local function parse_wk_v1(tbl, prefix, results)
     return results
 end
 
+---Parse a which-key v3 add() spec table into flat keymap entries.
+---@param tbl table
+---@param results HawtkeysKeyMapData[]
+---@return HawtkeysKeyMapData[]
+local function parse_wk_v3(tbl, results)
+    if type(tbl) ~= "table" then
+        return results
+    end
+
+    -- Handle nested mappings with inherited mode
+    local inherited_mode = "n"
+    if tbl.mode then
+        if type(tbl.mode) == "string" then
+            inherited_mode = tbl.mode
+        elseif type(tbl.mode) == "table" then
+            inherited_mode = tbl.mode
+        end
+    end
+
+    -- Iterate through the array-like structure
+    for _, item in ipairs(tbl) do
+        if type(item) == "table" then
+            -- A mapping entry has item[1] as a string (the lhs/key)
+            -- A nested group has item[1] as a table (a nested mapping) or no item[1]
+            local lhs = item[1]
+
+            if type(lhs) == "string" then
+                -- This is a mapping entry
+                local rhs = item[2]
+                local mode = item.mode or inherited_mode
+
+                -- Skip group-only entries (no rhs) and hidden entries
+                if not item.hidden and rhs then
+                    table.insert(results, {
+                        mode = mode,
+                        lhs = lhs,
+                        rhs = type(rhs) == "string" and rhs or "<function>",
+                    })
+                end
+            elseif type(lhs) == "table" or lhs == nil then
+                -- This is a nested group - recursively parse with inherited mode
+                -- Pass along the mode from this group to nested mappings
+                local nested_mode = item.mode or inherited_mode
+                local nested_results = parse_wk_v3(item, {})
+                -- Apply inherited mode to nested results that don't have one
+                for _, mapping in ipairs(nested_results) do
+                    if mapping.mode == "n" and nested_mode ~= "n" then
+                        mapping.mode = nested_mode
+                    end
+                    table.insert(results, mapping)
+                end
+            end
+        end
+    end
+
+    return results
+end
+
 ---@param filePath string
 ---@return HawtkeysKeyMapData[]
 local function find_maps_in_file(filePath)
@@ -326,10 +384,16 @@ local function find_maps_in_file(filePath)
                 )
                 break
             end
+            -- Get the parent node to determine if this is register() or add()
+            local parent_node = node:parent()
+            local parent_text =
+                vim.treesitter.get_node_text(parent_node:child(0), fileContent)
+            local is_add_method = parent_text:match("%.add$") ~= nil
+
             local strObj = vim.treesitter.get_node_text(node, fileContent)
             local ok, tableObj = pcall(function()
                 --Remove wrapping parens and wrap in table and unpack - issue #81
-                strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
+                strObj = strObj:gsub("^%s*%(s*", ""):gsub("%s*%)%s*$", "")
                 return loadstring("return {" .. strObj .. "}")()
             end)
             if not ok then
@@ -340,16 +404,32 @@ local function find_maps_in_file(filePath)
                 vim.notify(strObj, vim.log.levels.ERROR)
                 break
             end
-            local opts = tableObj[2] or {}
-            local prefix = opts.prefix or ""
-            local wkMappings = parse_wk_v1(tableObj[1], prefix, {})
-            for _, mapping in ipairs(wkMappings) do
-                table.insert(tsKeymaps, {
-                    mode = mapping.mode,
-                    lhs = mapping.lhs,
-                    rhs = mapping.rhs,
-                    from_file = filePath,
-                })
+
+            if is_add_method then
+                -- WhichKey v3 add() method
+                -- tableObj is { mappings_array }, so pass tableObj[1] (the actual mappings)
+                local wkMappings = parse_wk_v3(tableObj[1] or {}, {})
+                for _, mapping in ipairs(wkMappings) do
+                    table.insert(tsKeymaps, {
+                        mode = mapping.mode,
+                        lhs = mapping.lhs,
+                        rhs = mapping.rhs,
+                        from_file = filePath,
+                    })
+                end
+            else
+                -- WhichKey v1/v2 register() method
+                local opts = tableObj[2] or {}
+                local prefix = opts.prefix or ""
+                local wkMappings = parse_wk_v1(tableObj[1], prefix, {})
+                for _, mapping in ipairs(wkMappings) do
+                    table.insert(tsKeymaps, {
+                        mode = mapping.mode,
+                        lhs = mapping.lhs,
+                        rhs = mapping.rhs,
+                        from_file = filePath,
+                    })
+                end
             end
         end
     end

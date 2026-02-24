@@ -29,7 +29,6 @@ function M.loadWhichKey()
         vim.fn.system({
             "git",
             "clone",
-            "--branch=v1.5.0", -- hawtkeys uses which-key.mappings (removed in v3)
             "https://github.com/folke/which-key.nvim",
             whichkey_dir,
         })
