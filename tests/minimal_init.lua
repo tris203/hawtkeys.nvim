@@ -65,13 +65,6 @@ vim.opt.rtp:append(treesitter_dir)
 require("plenary.busted")
 
 vim.cmd("runtime plugin/plenary.vim")
-vim.cmd("runtime plugin/treesitter.vim")
-require("nvim-treesitter.configs").setup({
-    ensure_installed = "lua",
-    sync_install = true,
-    highlight = {
-        enable = true,
-    },
-})
+vim.cmd("runtime plugin/nvim-treesitter.lua")
 
 return M

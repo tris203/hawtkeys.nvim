@@ -335,16 +335,21 @@ local function find_maps_in_file(filePath)
                 vim.notify(strObj, vim.log.levels.ERROR)
                 break
             end
-            local wkMapping = which_key.parse(unpack(tableObj))
+            -- Replicate wk.register() behaviour: merge opts (tableObj[2]) into
+            -- spec (tableObj[1]) and parse with version=1 for the v1 format
+            local spec = vim.tbl_extend("force", tableObj[1], tableObj[2] or {})
+            local wkMapping = which_key.parse(spec, { version = 1 })
 
             for _, mapping in ipairs(wkMapping) do
-                local map = {
-                    mode = mapping.mode,
-                    lhs = mapping.prefix,
-                    rhs = mapping.cmd,
-                    from_file = filePath,
-                }
-                table.insert(tsKeymaps, map)
+                if mapping.lhs and mapping.rhs then
+                    local map = {
+                        mode = mapping.mode,
+                        lhs = mapping.lhs,
+                        rhs = mapping.rhs,
+                        from_file = filePath,
+                    }
+                    table.insert(tsKeymaps, map)
+                end
             end
         end
     end
