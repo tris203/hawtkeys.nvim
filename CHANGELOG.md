@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/tris203/hawtkeys.nvim/compare/v1.2.0...v1.2.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* update deprecated Actions versions and pin test dependencies ([#96](https://github.com/tris203/hawtkeys.nvim/issues/96)) ([d91d1b8](https://github.com/tris203/hawtkeys.nvim/commit/d91d1b847332f223736261f7df8194b13c280a50))
+
 ## [1.2.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.1.0...v1.2.0) (2024-03-30)
 
 
