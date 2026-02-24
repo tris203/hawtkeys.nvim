@@ -197,28 +197,14 @@ local function find_maps_in_file(filePath)
             --@type TSKeyMapArgs
             local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
             ---@type string
-            local mode = return_field_data(
-                node,
-                mapDef,
-                "modeIndex",
-                fileContent
-            )
+            local mode =
+                return_field_data(node, mapDef, "modeIndex", fileContent)
 
             ---@type string
-            local lhs = return_field_data(
-                node,
-                mapDef,
-                "lhsIndex",
-                fileContent
-            )
+            local lhs = return_field_data(node, mapDef, "lhsIndex", fileContent)
 
             ---@type string
-            local rhs = return_field_data(
-                node,
-                mapDef,
-                "rhsIndex",
-                fileContent
-            )
+            local rhs = return_field_data(node, mapDef, "rhsIndex", fileContent)
             local bufLocal = false
             local optsArg = node:child(mapDef.optsIndex)
             -- the opts table arg of `vim.keymap.set` is optional, only
@@ -266,9 +252,7 @@ local function find_maps_in_file(filePath)
         build_function_call_query(hawtkeys.config.keyMapSet)
     )
 
-    for id, node in
-        functionCallQuery:iter_captures(tree, fileContent, 0, -1)
-    do
+    for id, node in functionCallQuery:iter_captures(tree, fileContent, 0, -1) do
         if functionCallQuery.captures[id] == "args" then
             local parent = vim.treesitter.get_node_text(
                 node:parent():child(0),
@@ -276,28 +260,14 @@ local function find_maps_in_file(filePath)
             )
             local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
             ---@type string
-            local mode = return_field_data(
-                node,
-                mapDef,
-                "modeIndex",
-                fileContent
-            )
+            local mode =
+                return_field_data(node, mapDef, "modeIndex", fileContent)
 
             ---@type string
-            local lhs = return_field_data(
-                node,
-                mapDef,
-                "lhsIndex",
-                fileContent
-            )
+            local lhs = return_field_data(node, mapDef, "lhsIndex", fileContent)
 
             ---@type string
-            local rhs = return_field_data(
-                node,
-                mapDef,
-                "rhsIndex",
-                fileContent
-            )
+            local rhs = return_field_data(node, mapDef, "rhsIndex", fileContent)
             local bufLocal = false
             local optsArg = node:child(mapDef.optsIndex)
             -- the opts table arg of `vim.keymap.set` is optional, only
@@ -341,8 +311,10 @@ local function find_maps_in_file(filePath)
         end
     end
 
-    local whichKeyQuery =
-        vim.treesitter.query.parse("lua", build_which_key_query(hawtkeys.config.keyMapSet))
+    local whichKeyQuery = vim.treesitter.query.parse(
+        "lua",
+        build_which_key_query(hawtkeys.config.keyMapSet)
+    )
 
     for id, node in whichKeyQuery:iter_captures(tree, fileContent, 0, -1) do
         if whichKeyQuery.captures[id] == "args" then
@@ -354,8 +326,7 @@ local function find_maps_in_file(filePath)
                 )
                 break
             end
-            local strObj =
-                vim.treesitter.get_node_text(node, fileContent)
+            local strObj = vim.treesitter.get_node_text(node, fileContent)
             local ok, tableObj = pcall(function()
                 --Remove wrapping parens and wrap in table and unpack - issue #81
                 strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
