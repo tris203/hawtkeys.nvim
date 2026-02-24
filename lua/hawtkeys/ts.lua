@@ -3,8 +3,6 @@ local Path = require("plenary.path")
 local scan = require("plenary.scandir")
 local utils = require("hawtkeys.utils")
 local hawtkeys = require("hawtkeys")
-local ts = require("nvim-treesitter.compat")
-local tsQuery = require("nvim-treesitter.query")
 
 ---@alias VimModes 'n' | 'x' | 'v' | 'i'
 
@@ -148,225 +146,205 @@ local function find_maps_in_file(filePath)
     local tsKeymaps = {}
     -- TODO: This currently doesnt always work, as the options for helper functions are different,
     -- need to use TS to resolve it back to a native keymap
-    local dotIndexExpressionQuery = ts.parse_query(
+    local dotIndexExpressionQuery = vim.treesitter.query.parse(
         "lua",
         build_dot_index_expression_query(hawtkeys.config.keyMapSet)
     )
-    for match in
-        tsQuery.iter_prepared_matches(
-            dotIndexExpressionQuery,
-            tree,
-            fileContent,
-            0,
-            -1
-        )
+    for id, node in
+        dotIndexExpressionQuery:iter_captures(tree, fileContent, 0, -1)
     do
-        for type, node in pairs(match) do
-            if type == "args" then
-                local parent = vim.treesitter.get_node_text(
-                    node.node:parent():child(0),
-                    fileContent
-                )
-                --@type TSKeyMapArgs
-                local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
-                ---@type string
-                local mode = return_field_data(
-                    node.node,
-                    mapDef,
-                    "modeIndex",
-                    fileContent
-                )
+        if dotIndexExpressionQuery.captures[id] == "args" then
+            local parent = vim.treesitter.get_node_text(
+                node:parent():child(0),
+                fileContent
+            )
+            --@type TSKeyMapArgs
+            local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
+            ---@type string
+            local mode = return_field_data(
+                node,
+                mapDef,
+                "modeIndex",
+                fileContent
+            )
 
-                ---@type string
-                local lhs = return_field_data(
-                    node.node,
-                    mapDef,
-                    "lhsIndex",
-                    fileContent
-                )
+            ---@type string
+            local lhs = return_field_data(
+                node,
+                mapDef,
+                "lhsIndex",
+                fileContent
+            )
 
-                ---@type string
-                local rhs = return_field_data(
-                    node.node,
-                    mapDef,
-                    "rhsIndex",
-                    fileContent
-                )
-                local bufLocal = false
-                local optsArg = node.node:child(mapDef.optsIndex)
-                -- the opts table arg of `vim.keymap.set` is optional, only
-                -- do this check if it's present.
-                if optsArg then
-                    -- check for `buffer = <any>`, since we shouldn't show
-                    -- buf-local mappings
-                    bufLocal = vim.treesitter
-                        .get_node_text(optsArg, fileContent)
-                        :gsub("[\n\r]", "")
-                        :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
-                end
+            ---@type string
+            local rhs = return_field_data(
+                node,
+                mapDef,
+                "rhsIndex",
+                fileContent
+            )
+            local bufLocal = false
+            local optsArg = node:child(mapDef.optsIndex)
+            -- the opts table arg of `vim.keymap.set` is optional, only
+            -- do this check if it's present.
+            if optsArg then
+                -- check for `buffer = <any>`, since we shouldn't show
+                -- buf-local mappings
+                bufLocal = vim.treesitter
+                    .get_node_text(optsArg, fileContent)
+                    :gsub("[\n\r]", "")
+                    :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
+            end
 
-                if not bufLocal then
-                    ---@type HawtkeysKeyMapData
-                    local map = {
-                        mode = mode,
-                        lhs = lhs,
-                        rhs = rhs,
-                        from_file = filePath,
-                    }
+            if not bufLocal then
+                ---@type HawtkeysKeyMapData
+                local map = {
+                    mode = mode,
+                    lhs = lhs,
+                    rhs = rhs,
+                    from_file = filePath,
+                }
 
-                    if map.mode:match("^%s*{.*},?.*$") then
-                        local modes = {}
-                        local i = 1
-                        for child in node.node:child(1):iter_children() do
-                            if i % 2 == 0 then
-                                local ty = vim.treesitter
-                                    .get_node_text(child, fileContent)
-                                    :gsub("['\"]", "")
-                                    :gsub("[\n\r]", "")
-                                table.insert(modes, ty)
-                            end
-                            i = i + 1
+                if map.mode:match("^%s*{.*},?.*$") then
+                    local modes = {}
+                    local i = 1
+                    for child in node:child(1):iter_children() do
+                        if i % 2 == 0 then
+                            local ty = vim.treesitter
+                                .get_node_text(child, fileContent)
+                                :gsub("['\"]", "")
+                                :gsub("[\n\r]", "")
+                            table.insert(modes, ty)
                         end
-                        map.mode = modes
+                        i = i + 1
                     end
-                    table.insert(tsKeymaps, map)
+                    map.mode = modes
                 end
+                table.insert(tsKeymaps, map)
             end
         end
     end
 
-    local functionCallQuery = ts.parse_query(
+    local functionCallQuery = vim.treesitter.query.parse(
         "lua",
         build_function_call_query(hawtkeys.config.keyMapSet)
     )
 
-    for match in
-        tsQuery.iter_prepared_matches(
-            functionCallQuery,
-            tree,
-            fileContent,
-            0,
-            -1
-        )
+    for id, node in
+        functionCallQuery:iter_captures(tree, fileContent, 0, -1)
     do
-        for expCap, node in pairs(match) do
-            if expCap == "args" then
-                local parent = vim.treesitter.get_node_text(
-                    node.node:parent():child(0),
-                    fileContent
-                )
-                local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
-                ---@type string
-                local mode = return_field_data(
-                    node.node,
-                    mapDef,
-                    "modeIndex",
-                    fileContent
-                )
+        if functionCallQuery.captures[id] == "args" then
+            local parent = vim.treesitter.get_node_text(
+                node:parent():child(0),
+                fileContent
+            )
+            local mapDef = hawtkeys.config.keyMapSet[parent] --[[@as TSKeyMapArgs]]
+            ---@type string
+            local mode = return_field_data(
+                node,
+                mapDef,
+                "modeIndex",
+                fileContent
+            )
 
-                ---@type string
-                local lhs = return_field_data(
-                    node.node,
-                    mapDef,
-                    "lhsIndex",
-                    fileContent
-                )
+            ---@type string
+            local lhs = return_field_data(
+                node,
+                mapDef,
+                "lhsIndex",
+                fileContent
+            )
 
-                ---@type string
-                local rhs = return_field_data(
-                    node.node,
-                    mapDef,
-                    "rhsIndex",
-                    fileContent
-                )
-                local bufLocal = false
-                local optsArg = node.node:child(mapDef.optsIndex)
-                -- the opts table arg of `vim.keymap.set` is optional, only
-                -- do this check if it's present.
-                if optsArg then
-                    -- check for `buffer = <any>`, since we shouldn't show
-                    -- buf-local mappings
-                    bufLocal = vim.treesitter
-                        .get_node_text(optsArg, fileContent)
-                        :gsub("[\n\r]", "")
-                        :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
-                end
+            ---@type string
+            local rhs = return_field_data(
+                node,
+                mapDef,
+                "rhsIndex",
+                fileContent
+            )
+            local bufLocal = false
+            local optsArg = node:child(mapDef.optsIndex)
+            -- the opts table arg of `vim.keymap.set` is optional, only
+            -- do this check if it's present.
+            if optsArg then
+                -- check for `buffer = <any>`, since we shouldn't show
+                -- buf-local mappings
+                bufLocal = vim.treesitter
+                    .get_node_text(optsArg, fileContent)
+                    :gsub("[\n\r]", "")
+                    :match("^.*(buffer%s*=.+)%s*[,}].*$") ~= nil
+            end
 
-                if not bufLocal then
-                    ---@type HawtkeysKeyMapData
-                    local map = {
-                        mode = mode,
-                        lhs = lhs,
-                        rhs = rhs,
-                        from_file = filePath,
-                    }
+            if not bufLocal then
+                ---@type HawtkeysKeyMapData
+                local map = {
+                    mode = mode,
+                    lhs = lhs,
+                    rhs = rhs,
+                    from_file = filePath,
+                }
 
-                    if map.mode:match("^%s*{.*},?.*$") then
-                        local modes = {}
-                        local i = 1
-                        for child in node.node:child(1):iter_children() do
-                            if i % 2 == 0 then
-                                local ty = vim.treesitter
-                                    .get_node_text(child, fileContent)
-                                    :gsub("['\"]", "")
-                                    :gsub("[\n\r]", "")
-                                -- vim.print("type: " .. vim.inspect(ty))
-                                table.insert(modes, ty)
-                            end
-                            i = i + 1
+                if map.mode:match("^%s*{.*},?.*$") then
+                    local modes = {}
+                    local i = 1
+                    for child in node:child(1):iter_children() do
+                        if i % 2 == 0 then
+                            local ty = vim.treesitter
+                                .get_node_text(child, fileContent)
+                                :gsub("['\"]", "")
+                                :gsub("[\n\r]", "")
+                            -- vim.print("type: " .. vim.inspect(ty))
+                            table.insert(modes, ty)
                         end
-                        map.mode = modes
+                        i = i + 1
                     end
-                    table.insert(tsKeymaps, map)
+                    map.mode = modes
                 end
+                table.insert(tsKeymaps, map)
             end
         end
     end
 
     local whichKeyQuery =
-        ts.parse_query("lua", build_which_key_query(hawtkeys.config.keyMapSet))
+        vim.treesitter.query.parse("lua", build_which_key_query(hawtkeys.config.keyMapSet))
 
-    for match in
-        tsQuery.iter_prepared_matches(whichKeyQuery, tree, fileContent, 0, -1)
-    do
-        for expCap, node in pairs(match) do
-            if expCap == "args" then
-                local wkLoaded, which_key = pcall(function()
-                    return require("which-key.mappings")
-                end)
-                if not wkLoaded then
-                    vim.notify_once(
-                        "Which Key Mappings require which-key to be installed",
-                        vim.log.levels.WARN
-                    )
-                    break
-                end
-                local strObj =
-                    vim.treesitter.get_node_text(node.node, fileContent)
-                local ok, tableObj = pcall(function()
-                    --Remove wrapping parens and wrap in table and unpack - issue #81
-                    strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
-                    return loadstring("return {" .. strObj .. "}")()
-                end)
-                if not ok then
-                    vim.notify_once(
-                        "Error parsing which-key table",
-                        vim.log.levels.ERROR
-                    )
-                    vim.notify(strObj, vim.log.levels.ERROR)
-                    break
-                end
-                local wkMapping = which_key.parse(unpack(tableObj))
+    for id, node in whichKeyQuery:iter_captures(tree, fileContent, 0, -1) do
+        if whichKeyQuery.captures[id] == "args" then
+            local wkLoaded, which_key = pcall(function()
+                return require("which-key.mappings")
+            end)
+            if not wkLoaded then
+                vim.notify_once(
+                    "Which Key Mappings require which-key to be installed",
+                    vim.log.levels.WARN
+                )
+                break
+            end
+            local strObj =
+                vim.treesitter.get_node_text(node, fileContent)
+            local ok, tableObj = pcall(function()
+                --Remove wrapping parens and wrap in table and unpack - issue #81
+                strObj = strObj:gsub("^%s*%(%s*", ""):gsub("%s*%)%s*$", "")
+                return loadstring("return {" .. strObj .. "}")()
+            end)
+            if not ok then
+                vim.notify_once(
+                    "Error parsing which-key table",
+                    vim.log.levels.ERROR
+                )
+                vim.notify(strObj, vim.log.levels.ERROR)
+                break
+            end
+            local wkMapping = which_key.parse(unpack(tableObj))
 
-                for _, mapping in ipairs(wkMapping) do
-                    local map = {
-                        mode = mapping.mode,
-                        lhs = mapping.prefix,
-                        rhs = mapping.cmd,
-                        from_file = filePath,
-                    }
-                    table.insert(tsKeymaps, map)
-                end
+            for _, mapping in ipairs(wkMapping) do
+                local map = {
+                    mode = mapping.mode,
+                    lhs = mapping.prefix,
+                    rhs = mapping.cmd,
+                    from_file = filePath,
+                }
+                table.insert(tsKeymaps, map)
             end
         end
     end
