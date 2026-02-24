@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: pandoc to vimdoc
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: kdheepak/panvimdoc@main
         with:
           vimdoc: hawtkeys

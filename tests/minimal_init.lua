@@ -29,6 +29,7 @@ function M.loadWhichKey()
         vim.fn.system({
             "git",
             "clone",
+            "--branch=v1.5.0", -- hawtkeys uses which-key.mappings (removed in v3)
             "https://github.com/folke/which-key.nvim",
             whichkey_dir,
         })
@@ -53,6 +54,7 @@ if vim.fn.isdirectory(treesitter_dir) == 0 then
     vim.fn.system({
         "git",
         "clone",
+        "--branch=master",
         "https://github.com/nvim-treesitter/nvim-treesitter",
         treesitter_dir,
     })
