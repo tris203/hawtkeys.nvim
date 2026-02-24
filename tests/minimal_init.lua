@@ -53,6 +53,7 @@ if vim.fn.isdirectory(treesitter_dir) == 0 then
     vim.fn.system({
         "git",
         "clone",
+        "--branch=master",
         "https://github.com/nvim-treesitter/nvim-treesitter",
         treesitter_dir,
     })
