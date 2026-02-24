@@ -24,7 +24,7 @@ jobs:
           description: "For NVIM >=0.9"
           demojify: true
           treesitter: true
-      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore(docs): autogenerate vimdoc"
           branch: ${{ github.head_ref }}
