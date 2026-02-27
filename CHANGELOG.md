@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/tris203/hawtkeys.nvim/compare/v1.2.1...v2.0.0) (2026-02-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate to nvim-treesitter main ([#94](https://github.com/tris203/hawtkeys.nvim/issues/94))
+
+### Bug Fixes
+
+* migrate to nvim-treesitter main ([#94](https://github.com/tris203/hawtkeys.nvim/issues/94)) ([1ebd10b](https://github.com/tris203/hawtkeys.nvim/commit/1ebd10b4760bc66bb1d5df0dfcca76ee771e3a9c))
+
 ## [1.2.1](https://github.com/tris203/hawtkeys.nvim/compare/v1.2.0...v1.2.1) (2026-02-24)
 
 
