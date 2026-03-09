@@ -4,26 +4,29 @@ local tsSearch = require("hawtkeys.ts")
 local utils = require("hawtkeys.utils")
 local already_used_keys = {}
 
+---@param str string
+---@return table<string, boolean>
+local function get_initials_set(str)
+    local initials = {}
+    for word in str:gmatch("%S+") do
+        initials[word:sub(1, 1):lower()] = true
+    end
+    return initials
+end
+
 ---@param key1 string
 ---@param key2 string
 ---@param str string
 ---@return integer
 local function mnemonic_score(key1, key2, str)
-    -- returns a bonus point if the keys are the first letter of a word
-    local words = {}
-    for word in str:gmatch("%S+") do
-        table.insert(words, word)
-    end
-
+    local initials = get_initials_set(str)
     local bonus = 0
-    for _, word in ipairs(words) do
-        if word:sub(1, 1):lower() == key1 or word:sub(1, 1):lower() == key2 then
-            bonus = bonus + 1
-        end
-    end
 
-    --if key1 equals first letter of string then bonus = bonus + 1
-    if str:sub(1, 1):lower() == key1 then
+    -- Bonus for matching word initials
+    if initials[key1] then
+        bonus = bonus + 1
+    end
+    if initials[key2] then
         bonus = bonus + 1
     end
 
@@ -91,16 +94,36 @@ end
 ---@param str string
 ---@return string[]
 local function generate_combos(str)
+    -- Get initials before removing leader
+    local initials_set = get_initials_set(str)
+    local initials = {}
+    for k, _ in pairs(initials_set) do
+        table.insert(initials, k)
+    end
+
+    -- Remove leader for positional combinations only
     str = str:gsub(hawtkeys.config.leader, "")
     local pairs = {}
     local len = #str
     for i = 1, len - 1 do
-        local char1 = str:sub(i, i):lower() -- Convert characters to lowercase
+        local char1 = str:sub(i, i):lower()
         for j = i + 1, len do
-            local char2 = str:sub(j, j):lower() -- Convert characters to lowercase
+            local char2 = str:sub(j, j):lower()
             table.insert(pairs, char1 .. char2)
         end
     end
+
+    -- Also generate combinations of word initials (e.g., "go" and "og" for "git open")
+    if #initials >= 2 then
+        for _, first in ipairs(initials) do
+            for _, second in ipairs(initials) do
+                if first ~= second then
+                    table.insert(pairs, first .. second)
+                end
+            end
+        end
+    end
+
     return pairs
 end
 
